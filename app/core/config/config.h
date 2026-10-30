@@ -19,6 +19,7 @@ struct wye_config {
     int sensitivity;            /* percent, 10..400 */
     bool invert_wheel;
     int update_mode;            /* enum wye_update_mode */
+    bool api_enabled;           /* other apps of this user may drive the target */
     bool auto_firmware;         /* update Picos automatically when idle */
     bool start_at_login;
     bool start_hidden;

@@ -16,6 +16,8 @@
 
 #define WYE_NOTICE_LEN 160
 
+struct wye_api_ops;
+
 /* One-shot requests the UI must service on its own thread. */
 enum wye_ui_request {
     WYE_UI_REQ_NONE = 0,
@@ -84,6 +86,9 @@ bool wye_engine_functions_request(void);
 bool wye_engine_functions_set(const struct wye_functions *f);
 /* Legacy/old firmware: reboot a generic Pico on `port` into BOOTSEL. */
 bool wye_engine_rescue_legacy(void);
+
+/* The local API's view of the engine (engine_remote.c). */
+const struct wye_api_ops *wye_engine_api_ops(void);
 
 unsigned wye_engine_take_ui_requests(void);
 /* Pops the oldest user-facing notice; false if none. */

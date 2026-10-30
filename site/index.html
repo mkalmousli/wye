@@ -109,7 +109,7 @@ section:not(#story){padding:100px 0}
 .vs .y li::before{content:"✓";color:var(--ok);font-weight:700;margin-right:10px}
 .vs .win{border:2px solid var(--accent);transform:translateY(-8px)}
 .trial{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center}
-.dl{display:grid;gap:12px}.dl .micro{color:var(--sub);text-align:center}
+.dl{display:grid;gap:12px;min-width:0}.cmd{display:block;padding:12px 14px;border-radius:12px;background:var(--night);color:#e9edf3;font:500 .82rem/1.5 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}.dl .micro{margin:0}.dl .micro{color:var(--sub);text-align:center}
 details{border-bottom:1px solid var(--line);padding:18px 0}
 summary{cursor:pointer;font:600 1.1rem Inter,sans-serif;list-style:none;display:flex;justify-content:space-between;gap:20px}
 summary::-webkit-details-marker{display:none}summary::after{content:"+";color:var(--accent);font-size:1.5rem;line-height:1}details[open] summary::after{content:"−"}
@@ -247,10 +247,14 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;a
   <div class="wrap trial">
     <div>
       <p class="eyebrow">Get started</p>
-      <h2>Download it, or build it yourself.</h2>
+      <h2>Install it with one command.</h2>
       <p class="lead">All you need is two Raspberry Pi Picos, three jumper wires and two USB cables. The app sets up both boards and shows you which wire goes where.</p>
     </div>
     <div class="dl">
+      <p class="micro">Linux or macOS</p>
+      <code class="cmd">curl -fsSL https://raw.githubusercontent.com/mkalmousli/wye/main/install.sh | sh</code>
+      <p class="micro">Windows (PowerShell)</p>
+      <code class="cmd">irm https://raw.githubusercontent.com/mkalmousli/wye/main/install.ps1 | iex</code>
       <a class="btn primary big" href="https://github.com/mkalmousli/wye/releases/latest/download/Wye-windows-x64.exe">Download for Windows</a>
       <a class="btn big" href="https://github.com/mkalmousli/wye/releases/latest/download/wye-linux-x64">Download for Linux</a>
       <p class="micro">Windows 10/11 · Linux 64-bit · macOS coming soon<br>Signed automatic updates · <a href="https://github.com/mkalmousli/wye/releases">all releases</a> · <a href="https://github.com/mkalmousli/wye#build">build from source</a></p>
@@ -267,6 +271,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;a
     <details><summary>Will I notice lag?</summary><p>No. Wye adds about 2 milliseconds; a single frame on a 60 Hz screen takes 16.</p></details>
     <details><summary>Does it need Wi-Fi or a network?</summary><p>No. Everything crosses the wire between the two boards. The app only goes online to check for updates, and you can turn that off.</p></details>
     <details><summary>Is it open source?</summary><p>Yes. Wye is free software under the GNU GPL, version 3 or later. You can use it for anything, with no license key or account.</p></details>
+    <details><summary>Can my own scripts control the other computer?</summary><p>Yes. Run <code>wye type hello</code> or <code>wye click</code>, or use the local socket from any language, with no hotkey needed. Nothing is installed on the other computer. See the <a href="https://github.com/mkalmousli/wye/blob/main/docs/API.md">API docs</a>.</p></details>
     <details><summary>Can I build it myself?</summary><p>Yes. Clone the repository and run <code>./build.c</code>. Everything, firmware included, is built from the source in one repository.</p></details>
     </div>
 </section>

@@ -1,4 +1,5 @@
 /* Settings: updates, startup and device discovery. */
+#include "api/api.h"
 #include "ui.h"
 #include "ui_theme.h"
 
@@ -58,6 +59,17 @@ void settings_system_card(struct wye_ui *ui, Rectangle r)
     if (ui_toggle((Rectangle){c.x, y, 300, UI_ROW}, "Look for Picos with old firmware", &ui->cfg.probe_generic_pico)) {
         ui_save_config(ui);
     }
+    float row = y;
+    y += UI_ROW + 4;
+    if (ui_toggle((Rectangle){c.x, y, 300, UI_ROW}, "Let other apps on this computer drive it", &ui->cfg.api_enabled)) {
+        if (ui->cfg.api_enabled) {
+            wye_api_start(wye_engine_api_ops());
+        } else {
+            wye_api_stop();
+        }
+        ui_save_config(ui);
+    }
+    y = row;
     int open_as = ui->cfg.start_hidden ? 2 : ui->cfg.start_mini ? 1 : 0, before = open_as;
     ui_text(ui, "Open as", c.x + 400, y + 9, UI_FONT_SMALL, UI_MUTED);
     open_as = ui_segmented((Rectangle){c.x + 462, y, 276, UI_ROW}, "Window;Mini;Hidden", open_as);

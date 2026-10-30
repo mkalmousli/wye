@@ -1,6 +1,7 @@
 /* Internal launch modes and the per-OS process entry point. */
 #include "app_entry.h"
 
+#include "api/api.h"
 #include "product.h"
 #include "release/release_sign.h"
 
@@ -17,13 +18,44 @@ static int help(void)
            "usage: wye [--background]\n"
            "  --background   start without showing the window (as at login)\n"
            "  --version      print the version\n"
-           "  --help         this text\n\n%s\n",
+           "  --help         this text\n\n"
+           "Control the other computer directly, while Wye is running:\n"
+           "  wye type <text>          type text\n"
+           "  wye key <chord>...       press keys, like ctrl+shift+t or enter\n"
+           "  wye move <dx> <dy>       move the pointer\n"
+           "  wye moveto <x> <y>       place the pointer, 0-32767 across the screen\n"
+           "  wye click [button]       click left, right, middle, back or forward\n"
+           "  wye down|up [button]     hold or let go of a button\n"
+           "  wye scroll <up> [right]  scroll by notches\n"
+           "  wye release              let go of everything\n"
+           "  wye status               show whether the other computer is reachable\n\n%s\n",
            WYE_PRODUCT_NAME, WYE_VERSION_STRING, WYE_HOMEPAGE_URL);
     return 0;
 }
 
+#if defined(_WIN32)
+#include <windows.h>
+/* A GUI program has no console of its own: print into the one it was started from. */
+static void attach_console(void)
+{
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+    }
+}
+#else
+static void attach_console(void) {}
+#endif
+
 int wye_special_mode(int argc, char **argv)
 {
+    int cli_exit;
+    if (argc > 1 && argv[1][0] != '-') {
+        attach_console();
+    }
+    if (wye_api_cli(argc, argv, &cli_exit)) {
+        return cli_exit;
+    }
     if (argc > 1 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
         return help();
     }

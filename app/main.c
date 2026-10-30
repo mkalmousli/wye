@@ -6,6 +6,7 @@
 #include "app_entry.h"
 #include "ui.h"
 
+#include "api/api.h"
 #include "config/config.h"
 #include "engine/engine.h"
 #include "log.h"
@@ -69,12 +70,16 @@ int wye_main(int argc, char **argv)
     init_config(&ui);
     ui.hidden = ui.cfg.start_hidden || has_flag(argc, argv, "--background");
     wye_engine_start(&ui.cfg);
+    if (ui.cfg.api_enabled) {
+        wye_api_start(wye_engine_api_ops());
+    }
     wye_updater_start(&ui.cfg);
     if (updated) {
         wye_engine_notice("%s was updated to %s", WYE_PRODUCT_NAME, WYE_VERSION_STRING);
     }
     int rc = wye_ui_run(&ui);
     wye_updater_stop();
+    wye_api_stop();
     wye_engine_stop();
     LOG_I("exit");
     wye_log_shutdown();

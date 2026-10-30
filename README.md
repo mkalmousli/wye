@@ -28,18 +28,29 @@ feature is free for everyone, with no license keys, accounts or telemetry.
 | **Sound** | hear the other computer and talk into its calls, both ways |
 | **Shared folder** | shows up as a USB drive over there and syncs both ways |
 | **Automation** | type the clipboard into anything, record and replay routines, Ctrl+Alt+Del on demand |
+| **API** | let your own scripts and apps type and click over there directly, no hotkey needed; see [docs/API.md](docs/API.md) |
 
 ## Get started
 
 You need two Raspberry Pi Picos, three jumper wires and two USB cables.
 
-1. Download the app for your system:
+1. Install the app on the computer you sit at:
 
-   | System | File |
-   | --- | --- |
-   | Windows 10/11, 64-bit | [`Wye-windows-x64.exe`](https://github.com/mkalmousli/wye/releases/latest/download/Wye-windows-x64.exe) |
-   | Linux, 64-bit (X11) | [`wye-linux-x64`](https://github.com/mkalmousli/wye/releases/latest/download/wye-linux-x64) |
-   | macOS | not released yet; a Mac already works as the *other* computer |
+   **Linux or macOS:**
+
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/mkalmousli/wye/main/install.sh | sh
+   ```
+
+   **Windows (PowerShell):**
+
+   ```powershell
+   irm https://raw.githubusercontent.com/mkalmousli/wye/main/install.ps1 | iex
+   ```
+
+   Neither needs root or administrator rights. On Linux x64 and Windows they
+   download the latest release and check its checksum. Where there's no release
+   yet, `install.sh` builds from source, and tells you which tools it needs.
 
 2. Connect pins **1→2, 2→1, 3→3** between the two Picos (TX, RX, ground):
 
@@ -61,6 +72,7 @@ tablets, Chromebooks, servers and kiosks.
 | `tests/` | unit and simulation tests |
 | `tools/build/` | the build tool, bundled by `build.c` |
 | `site/` | the website, deployed to GitHub Pages |
+| `install.sh`, `install.ps1` | the one-command installers |
 | `keys/` | the public key that verifies updates (private `*.key` files never get committed) |
 
 ## Build

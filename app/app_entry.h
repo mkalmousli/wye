@@ -8,6 +8,7 @@ int wye_main(int argc, char **argv);
 /*
  * Internal non-GUI modes; returns their exit code, or -1 for a normal launch.
  *   --help, --version              print usage / version and exit
+ *   status, type, key, move...     commands for the running app (core/api)
  *   --install-permissions          Linux, run as root by pkexec from the GUI
  *   --release-keygen <dir> <name>  write a new <name>.key and <name>.pub
  *   --release-sign <key> <file>    write <file>.sig (release automation)
