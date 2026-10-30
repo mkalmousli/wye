@@ -12,6 +12,7 @@ static bool embeds(strlist *objs)
         {"wye_font_regular", "app/resources/fonts/Inter-Regular.ttf"},
         {"wye_font_bold", "app/resources/fonts/Inter-SemiBold.ttf"},
         {"wye_font_heavy", "app/resources/fonts/Inter-Bold.ttf"},
+        {"wye_icon_png", "app/resources/linux/wye.png"},
     };
     unit u = {.name = "embed"};
     base_flags(&u.cflags, true);

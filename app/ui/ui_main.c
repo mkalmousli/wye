@@ -46,6 +46,20 @@ static void frame(struct wye_ui *ui)
     ui_handle_close(ui);
 }
 
+extern const unsigned char wye_icon_png[];
+extern const size_t wye_icon_png_len;
+
+/* The title bar, taskbar and task switcher take the icon from the window itself. */
+static void set_window_icon(void)
+{
+    Image icon = LoadImageFromMemory(".png", wye_icon_png, (int)wye_icon_png_len);
+    if (icon.data) {
+        ImageFormat(&icon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8); /* all SetWindowIcon accepts */
+        SetWindowIcon(icon);
+        UnloadImage(icon);
+    }
+}
+
 int wye_ui_run(struct wye_ui *ui)
 {
     /* ALWAYS_RUN: raylib would otherwise stop the loop while minimized, and a request to
@@ -60,6 +74,7 @@ int wye_ui_run(struct wye_ui *ui)
     InitWindow(1000, 660, WYE_PRODUCT_NAME);
     SetWindowMinSize(860, 580);
     SetExitKey(KEY_NULL);
+    set_window_icon();
     ui_theme_load(ui);
     ui_mini_restore_position(ui);
     if (ui->cfg.last_mini && ui->page != PAGE_SETUP) {
