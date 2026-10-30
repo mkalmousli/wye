@@ -13,11 +13,18 @@
 #include <unistd.h>
 
 static volatile sig_atomic_t g_show_requested;
+static volatile sig_atomic_t g_quit_requested;
 
 static void on_usr1(int sig)
 {
     (void)sig;
     g_show_requested = 1;
+}
+
+static void on_quit(int sig)
+{
+    (void)sig;
+    g_quit_requested = 1;
 }
 
 bool plat_instance_acquire(bool notify)
@@ -50,6 +57,9 @@ bool plat_instance_acquire(bool notify)
         /* fd stays open (and locked) for the life of the process */
     }
     signal(SIGUSR1, on_usr1);
+    signal(SIGINT, on_quit);
+    signal(SIGTERM, on_quit);
+    signal(SIGHUP, on_quit);
     signal(SIGPIPE, SIG_IGN);
     return true;
 }
@@ -59,4 +69,9 @@ bool plat_instance_show_requested(void)
     bool r = g_show_requested != 0;
     g_show_requested = 0;
     return r;
+}
+
+bool plat_instance_quit_requested(void)
+{
+    return g_quit_requested != 0;
 }

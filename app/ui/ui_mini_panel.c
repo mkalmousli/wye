@@ -55,10 +55,9 @@ static const char *buttons(struct wye_ui *ui, float x)
     tip = hot ? TextFormat("Full window%s", chord(ui, WYE_ACT_MINI)) : tip;
     r.x += 26, hot = false;
     if (ui_icon_button((Rectangle){r.x, r.y, 24, 28}, UI_ICON_CLOSE, UI_MUTED, false, true, &hot)) {
-        SetWindowState(FLAG_WINDOW_HIDDEN); /* shortcuts keep working; launch Wye to show it again */
-        ui->hidden = true;
+        ui->quit = true;
     }
-    return hot ? TextFormat("Hide%s", chord(ui, WYE_ACT_SHOW_WINDOW)) : tip;
+    return hot ? "Close Wye" : tip;
 }
 
 void ui_mini_panel(struct wye_ui *ui)

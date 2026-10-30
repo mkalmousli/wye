@@ -5,7 +5,9 @@ no hotkey to press, and your own keyboard and mouse keep working on your own
 computer. Nothing is needed on the other computer: it only ever sees the same
 USB keyboard and mouse as always.
 
-Wye must be running; `wye --background` starts it without a window. The API
+Wye must be running; `wye --background` starts it without a window. Closing Wye
+ends the program and the API with it. To stop a Wye without a window, open Wye
+again and close the window, or run `kill` on it. The API
 listens on your computer only and accepts only your own user account. Turn it
 off under Settings → "Let other apps on this computer drive it".
 

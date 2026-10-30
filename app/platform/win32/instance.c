@@ -29,3 +29,8 @@ bool plat_instance_show_requested(void)
 {
     return g_show && WaitForSingleObject(g_show, 0) == WAIT_OBJECT_0;
 }
+
+bool plat_instance_quit_requested(void)
+{
+    return false; /* Windows ends programs through the window */
+}

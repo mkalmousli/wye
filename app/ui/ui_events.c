@@ -37,14 +37,7 @@ void ui_handle_requests(struct wye_ui *ui)
 
 void ui_handle_close(struct wye_ui *ui)
 {
-    if (!WindowShouldClose()) {
-        return;
-    }
-    /* Closing the window keeps Wye running so the hotkey keeps working. */
-    SetWindowState(FLAG_WINDOW_HIDDEN);
-    ui->hidden = true;
-    if (!ui->background_hint_shown) {
-        ui->background_hint_shown = true;
-        ui_toast(ui, "Wye keeps running in the background. Launch it again to reopen.");
+    if (WindowShouldClose() || plat_instance_quit_requested()) {
+        ui->quit = true; /* closing the window ends the program, not just the window */
     }
 }

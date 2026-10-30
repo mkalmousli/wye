@@ -15,7 +15,10 @@
 #include "product.h"
 #include "update/update.h"
 
+#include <stdlib.h>
 #include <string.h>
+
+#define EXIT_DEADLINE_MS 10000
 
 static bool has_flag(int argc, char **argv, const char *flag)
 {
@@ -37,6 +40,14 @@ static bool acquire_instance(bool updated)
         plat_sleep_ms(200);
     }
     return false;
+}
+
+/* Closing means gone: a stuck thread, like a hanging download, must not keep the process alive. */
+static void exit_deadline(void *arg)
+{
+    (void)arg;
+    plat_sleep_ms(EXIT_DEADLINE_MS);
+    _Exit(0);
 }
 
 static void init_config(struct wye_ui *ui)
@@ -78,6 +89,7 @@ int wye_main(int argc, char **argv)
         wye_engine_notice("%s was updated to %s", WYE_PRODUCT_NAME, WYE_VERSION_STRING);
     }
     int rc = wye_ui_run(&ui);
+    plat_thread_start(exit_deadline, NULL);
     wye_updater_stop();
     wye_api_stop();
     wye_engine_stop();

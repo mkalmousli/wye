@@ -28,7 +28,7 @@ struct wye_ui {
     struct wye_update_status upd;
     enum wye_page page;
     Font font, bold, display;      /* display: bold rasterised large for headlines and numbers */
-    bool quit, hidden, background_hint_shown;
+    bool quit, hidden;
     bool mini, mini_dragging;        /* small floating panel instead of the full window */
     bool mini_for_control;           /* went mini because control switched over: come back after */
     Vector2 mini_pos, mini_win0;     /* window position when a drag started */

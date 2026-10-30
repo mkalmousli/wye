@@ -48,6 +48,8 @@ bool plat_autostart_set(bool enable);
  */
 bool plat_instance_acquire(bool notify);
 bool plat_instance_show_requested(void);
+/* The system asked this process to end (Ctrl+C, kill, the terminal closing). */
+bool plat_instance_quit_requested(void);
 
 /* Mounted UF2 bootloader drives (RPI-RP2 / RP2350); returns count. */
 int plat_uf2_drives(char paths[][PLAT_PATH_MAX], int max);
