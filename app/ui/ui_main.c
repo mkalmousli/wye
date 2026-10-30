@@ -45,7 +45,10 @@ static void frame(struct wye_ui *ui)
 
 int wye_ui_run(struct wye_ui *ui)
 {
-    unsigned flags = FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT;
+    /* ALWAYS_RUN: raylib would otherwise stop the loop while minimized, and a request to
+       come to the front, a shortcut or a signal to quit would go unseen. */
+    unsigned flags = FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
+                     FLAG_WINDOW_ALWAYS_RUN;
     if (ui->hidden) {
         flags |= FLAG_WINDOW_HIDDEN;
     }
@@ -59,7 +62,7 @@ int wye_ui_run(struct wye_ui *ui)
         ui_mini_enter(ui); /* the full window opens only when asked for */
     }
     while (!ui->quit) {
-        SetTargetFPS(ui->hidden ? 10 : 60);
+        SetTargetFPS(ui->hidden || IsWindowMinimized() ? 10 : 60);
         frame(ui);
     }
     ui_theme_unload(ui);

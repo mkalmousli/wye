@@ -40,7 +40,7 @@ void devices_audio(struct wye_ui *ui, Rectangle c)
     for (int i = 0; i < 2; ++i) {
         if (devices_audio_lane(ui, (Rectangle){c.x, y + (float)i * (lane_h + 14), c.width, lane_h}, &lanes[i])) {
             *field[i] = !*field[i];
-            ui_save_config(ui); /* the sound worker follows at once */
+            ui_save_config(ui); /* the sound worker follows; the target adds or drops its sound device */
         }
     }
     y += 2 * lane_h + 40;

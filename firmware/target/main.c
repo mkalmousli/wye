@@ -20,7 +20,7 @@ static const struct wye_identity g_default_id = {
 };
 
 static const struct wye_functions g_default_fn = {
-    WYE_FN_DRIVE | WYE_FN_AUDIO, "Wye", "Shared Folder",
+    0, "Wye", "Shared Folder", /* just a keyboard and mouse until the app asks for more */
 };
 
 static uint32_t now_ms(void *ctx) { (void)ctx; return board_now_ms(); }

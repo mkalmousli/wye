@@ -1,4 +1,5 @@
 /* Target settings (drive switch and name) over the link, and the payload codec. */
+#include "config/config.h"
 #include "sim.h"
 #include "test.h"
 
@@ -21,4 +22,12 @@ TEST(functions_round_trip_and_reboot)
     CHECK_EQ(s->reboots, 0);
     sim_advance(s, WYE_NODE_ACT_DELAY_MS + 1);
     CHECK_EQ(s->reboots, 1); /* re-enumerates with the new parts */
+}
+
+TEST(a_new_install_only_turns_on_keyboard_and_mouse)
+{
+    struct wye_config c;
+    wye_config_defaults(&c);
+    CHECK(c.use_keyboard && c.use_mouse);
+    CHECK(!c.use_speaker && !c.use_mic && !c.drive_enabled && !c.api_enabled);
 }

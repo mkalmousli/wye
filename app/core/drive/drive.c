@@ -66,8 +66,8 @@ void wye_drive_configure(struct wye_drive *d, bool enabled, const char *folder, 
         }
     }
     d->enabled = enabled;
-    plat_mkdirs(d->folder);
     if (enabled) {
+        plat_mkdirs(d->folder);
         plat_places_pin(d->folder, "Wye Drive"); /* here it shows up like the drive does there */
     }
 }

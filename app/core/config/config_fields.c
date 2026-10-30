@@ -50,15 +50,16 @@ void wye_config_defaults(struct wye_config *c)
     c->hotkey = HID_KEY_F12;
     c->sensitivity = 100;
     c->update_mode = WYE_UPDATE_AUTO;
-    c->api_enabled = true;
+    c->api_enabled = false;
     c->auto_firmware = true;
     c->hud_mode = WYE_HUD_FORWARDING;
     c->probe_generic_pico = true;
     c->jiggler_interval_s = 60;
-    c->drive_enabled = true;
+    c->drive_enabled = false;
     c->drive_size_mb = 256;
     c->start_mini = false;
-    c->use_keyboard = c->use_mouse = c->use_speaker = c->use_mic = true;
+    c->use_keyboard = c->use_mouse = true; /* all a new install turns on */
+    c->use_speaker = c->use_mic = false;
     uint8_t keys[WYE_ACT_COUNT];
     wye_input_default_chords(keys);
     memcpy(c->shortcuts, keys, sizeof(keys));

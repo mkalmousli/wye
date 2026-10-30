@@ -6,6 +6,7 @@
 #include "plat_sys.h"
 
 #include <fcntl.h>
+#include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,4 +75,28 @@ bool plat_instance_show_requested(void)
 bool plat_instance_quit_requested(void)
 {
     return g_quit_requested != 0;
+}
+
+void plat_detach_from_terminal(void)
+{
+    if (!isatty(STDIN_FILENO) && !isatty(STDOUT_FILENO) && !isatty(STDERR_FILENO)) {
+        return; /* a launcher or a login item has nothing to wait for */
+    }
+    pid_t child = fork();
+    if (child > 0) {
+        _exit(0);
+    }
+    if (child < 0) {
+        return; /* stay attached: better than not starting */
+    }
+    setsid(); /* no controlling terminal: closing it no longer concerns us */
+    int null = open("/dev/null", O_RDWR);
+    if (null >= 0) {
+        dup2(null, STDIN_FILENO);
+        dup2(null, STDOUT_FILENO);
+        dup2(null, STDERR_FILENO);
+        if (null > STDERR_FILENO) {
+            close(null);
+        }
+    }
 }

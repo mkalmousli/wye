@@ -14,12 +14,13 @@
 
 static int help(void)
 {
-    printf("%s %s - open it from your app menu; everything is set up in its window.\n\n"
+    printf("%s %s - opens its window, or brings it to the front if already running.\n\n"
            "usage: wye [--background]\n"
            "  --background   start without showing the window (as at login)\n"
+           "  --foreground   stay attached to the terminal instead of returning at once\n"
            "  --version      print the version\n"
            "  --help         this text\n\n"
-           "Control the other computer directly, while Wye is running:\n"
+           "Control the other computer directly, with the API on (Settings) and Wye running:\n"
            "  wye type <text>          type text\n"
            "  wye key <chord>...       press keys, like ctrl+shift+t or enter\n"
            "  wye move <dx> <dy>       move the pointer\n"

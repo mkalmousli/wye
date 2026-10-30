@@ -77,3 +77,12 @@ const char *ui_key_name(int usage)
     }
     return buf;
 }
+
+void ui_open_shared_folder(struct wye_ui *ui)
+{
+    if (ui->st.drive.enabled) {
+        plat_reveal_path(ui->st.drive.folder);
+    } else {
+        ui_toast(ui, "The shared folder is off. Turn it on under Devices.");
+    }
+}

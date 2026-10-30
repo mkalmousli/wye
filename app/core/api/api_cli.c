@@ -45,7 +45,7 @@ bool wye_api_cli(int argc, char **argv, int *exit_code)
     }
     plat_ipc *c = plat_ipc_connect();
     if (!c) {
-        fprintf(stderr, "wye: Wye is not running. Start it first, for example with: wye --background\n");
+        fprintf(stderr, "wye: cannot reach Wye. Start it, and turn on the API under Settings.\n");
         *exit_code = 2;
         return true;
     }

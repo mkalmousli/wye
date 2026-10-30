@@ -61,7 +61,7 @@ void settings_system_card(struct wye_ui *ui, Rectangle r)
     }
     float row = y;
     y += UI_ROW + 4;
-    if (ui_toggle((Rectangle){c.x, y, 300, UI_ROW}, "Let other apps on this computer drive it", &ui->cfg.api_enabled)) {
+    if (ui_toggle((Rectangle){c.x, y, 460, UI_ROW}, "API: let other apps here control the other computer", &ui->cfg.api_enabled)) {
         if (ui->cfg.api_enabled) {
             wye_api_start(wye_engine_api_ops());
         } else {

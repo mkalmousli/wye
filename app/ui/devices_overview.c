@@ -54,7 +54,7 @@ void devices_overview(struct wye_ui *ui, Rectangle a)
     }
     float y = a.y + 2 * h + gap + 14;
     if (y + 24 < a.y + a.height) {
-        ui_text(ui, "Keyboard, mouse and sound switch at once. The drive appears or goes away on the other computer "
-                    "within a few seconds.", a.x, y, UI_FONT_SMALL, UI_MUTED);
+        ui_text(ui, "Keyboard and mouse switch at once. Turning sound or the drive on or off restarts the target Pico, "
+                    "which takes a few seconds.", a.x, y, UI_FONT_SMALL, UI_MUTED);
     }
 }

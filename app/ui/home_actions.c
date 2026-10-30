@@ -72,7 +72,7 @@ void home_actions(struct wye_ui *ui, Rectangle r)
         } else if (i == 2) {
             wye_engine_ctrl_alt_del();
         } else {
-            plat_reveal_path(d->folder);
+            ui_open_shared_folder(ui);
         }
     }
 }

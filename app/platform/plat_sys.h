@@ -47,6 +47,8 @@ bool plat_autostart_set(bool enable);
  * running one is asked to show its window (see plat_instance_show_requested).
  */
 bool plat_instance_acquire(bool notify);
+/* Started from a terminal: carry on in the background and give the terminal back. */
+void plat_detach_from_terminal(void);
 bool plat_instance_show_requested(void);
 /* The system asked this process to end (Ctrl+C, kill, the terminal closing). */
 bool plat_instance_quit_requested(void);

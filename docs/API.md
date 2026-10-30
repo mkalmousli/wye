@@ -5,11 +5,13 @@ no hotkey to press, and your own keyboard and mouse keep working on your own
 computer. Nothing is needed on the other computer: it only ever sees the same
 USB keyboard and mouse as always.
 
+The API is off by default. Turn it on under Settings → "API: let other apps here
+control the other computer".
+
 Wye must be running; `wye --background` starts it without a window. Closing Wye
-ends the program and the API with it. To stop a Wye without a window, open Wye
-again and close the window, or run `kill` on it. The API
-listens on your computer only and accepts only your own user account. Turn it
-off under Settings → "Let other apps on this computer drive it".
+ends the program and the API with it. To stop a Wye without a window, run `wye`
+to bring its window up and close it, or run `kill` on it. The API listens on your
+computer only and accepts only your own user account.
 
 ## From a shell
 
@@ -26,7 +28,7 @@ wye scroll -3               # scroll notches, up or (negative) down; a second nu
 wye release                 # let go of everything and drop text still being typed
 ```
 
-Exit codes: `0` done, `1` refused (the message says why), `2` Wye isn't running.
+Exit codes: `0` done, `1` refused (the message says why), `2` Wye isn't running or its API is off.
 
 **Key names:** a character (`a`, `/`, `A`), or `enter`, `esc`, `tab`, `space`,
 `backspace`, `delete`, `insert`, `home`, `end`, `pageup`, `pagedown`, `up`,

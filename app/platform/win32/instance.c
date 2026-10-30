@@ -15,6 +15,7 @@ bool plat_instance_acquire(bool notify)
         CloseHandle(m);
         HANDLE ev = notify ? OpenEventA(EVENT_MODIFY_STATE, FALSE, SHOW_EVENT) : NULL;
         if (ev) {
+            AllowSetForegroundWindow(ASFW_ANY); /* the running copy may come to the front */
             SetEvent(ev);
             CloseHandle(ev);
         }
@@ -33,4 +34,9 @@ bool plat_instance_show_requested(void)
 bool plat_instance_quit_requested(void)
 {
     return false; /* Windows ends programs through the window */
+}
+
+void plat_detach_from_terminal(void)
+{
+    /* A GUI program already gives the terminal back at once. */
 }

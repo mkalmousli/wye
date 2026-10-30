@@ -6,16 +6,11 @@
 
 #include <time.h>
 
-/* On/off is two things: serving the folder (here) and the drive interface (on the Pico). */
+/* The engine serves the folder and makes the target offer the drive (or stop offering it). */
 void devices_set_drive(struct wye_ui *ui, bool on)
 {
-    struct wye_functions *f = devices_functions();
     ui->cfg.drive_enabled = on;
     ui_save_config(ui);
-    if (f && ((f->flags & WYE_FN_DRIVE) != 0) != on) {
-        f->flags = (uint8_t)(on ? f->flags | WYE_FN_DRIVE : f->flags & ~WYE_FN_DRIVE);
-        devices_functions_save(ui); /* the drive appears / disappears after the Pico restarts */
-    }
 }
 
 static void switch_row(struct wye_ui *ui, Rectangle c)
@@ -39,7 +34,7 @@ static void folder_row(struct wye_ui *ui, Rectangle c, float y)
         wye_engine_apply_config(&ui->cfg);
     }
     if (ui_button((Rectangle){c.x + c.width - 100, y, 100, UI_ROW}, "Open")) {
-        plat_reveal_path(ui->st.drive.folder);
+        ui_open_shared_folder(ui);
     }
 }
 

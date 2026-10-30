@@ -63,7 +63,9 @@ void plat_window_to_current_desktop(void *handle)
     }
     send_state(dpy, w, "_NET_WM_STATE", 0, (long)XInternAtom(dpy, "_NET_WM_STATE_STICKY", False), 0);
     send_state(dpy, w, "_NET_WM_DESKTOP", current_desktop(dpy), 1, 0);
-    send_state(dpy, w, "_NET_ACTIVE_WINDOW", 1, CurrentTime, 0); /* raise and focus */
+    /* Raise and focus. Only ever on the user's request, so as source 2, a pager:
+       window managers apply their focus-stealing rules to applications, not to these. */
+    send_state(dpy, w, "_NET_ACTIVE_WINDOW", 2, CurrentTime, 0);
     XFlush(dpy);
 }
 

@@ -19,7 +19,7 @@ void ui_handle_requests(struct wye_ui *ui)
         ui->mini ? ui_mini_leave(ui) : ui_mini_enter(ui);
     }
     if (req & WYE_UI_REQ_FOLDER) {
-        plat_reveal_path(ui->st.drive.folder);
+        ui_open_shared_folder(ui);
     }
     if ((req & WYE_UI_REQ_SHOW) || plat_instance_show_requested()) {
         ClearWindowState(FLAG_WINDOW_HIDDEN | FLAG_WINDOW_MINIMIZED);

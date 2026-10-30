@@ -34,6 +34,7 @@ struct wye_engine {
     bool profile_valid[3];         /* per node id: the board told us its profile */
     struct wye_profile profile[3];
     uint64_t next_profile_ask[3];
+    uint64_t next_functions_check;
     bool auto_fw_tried[3];         /* per node id, once per connection */
     uint64_t next_capture_retry;
     bool learning_key;

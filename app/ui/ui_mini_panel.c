@@ -45,7 +45,7 @@ static const char *buttons(struct wye_ui *ui, float x)
     tip = hot ? TextFormat("Type clipboard%s", chord(ui, WYE_ACT_PASTE)) : tip;
     r.x += 32, hot = false;
     if (ui_icon_button(r, UI_ICON_FOLDER, drive_color(&ui->st.drive), false, true, &hot)) {
-        plat_reveal_path(ui->st.drive.folder);
+        ui_open_shared_folder(ui);
     }
     tip = hot ? TextFormat("Shared folder: %s", ui->st.drive.enabled ? ui->st.drive.message : "off") : tip;
     r.x += 36, hot = false;

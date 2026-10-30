@@ -53,6 +53,7 @@ void ui_theme_unload(struct wye_ui *ui);
 void ui_toast(struct wye_ui *ui, const char *text);
 void ui_draw_toasts(struct wye_ui *ui);
 void ui_save_config(struct wye_ui *ui);
+void ui_open_shared_folder(struct wye_ui *ui);
 /* The name and colour stored on a Pico, else these defaults (device_pico_name.c). */
 const char *ui_pico_name(const struct wye_ui *ui, int node, const char *fallback);
 Color ui_pico_color(const struct wye_ui *ui, int node, Color fallback);

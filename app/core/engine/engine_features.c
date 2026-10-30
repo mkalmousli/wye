@@ -6,6 +6,8 @@
 #include <stdio.h>
 
 #define PROFILE_ASK_MS 2000u
+#define FUNCTIONS_ASK_MS 2000u
+#define FUNCTIONS_FIX_MS 10000u
 
 static void maybe_auto_update(struct wye_engine *e, uint64_t now)
 {
@@ -47,6 +49,36 @@ static void keep_profiles(struct wye_engine *e, uint64_t now)
     }
 }
 
+/* The target's USB parts follow the settings: it only offers a drive or sound device when they
+   are switched on here. Changing them restarts the target, so never while it is in use. */
+static void keep_functions(struct wye_engine *e, uint64_t now)
+{
+    if (!e->link.info.target.present) {
+        e->functions_valid = false;
+        e->next_functions_check = 0;
+        return;
+    }
+    if (now < e->next_functions_check || wye_fw_session_busy(&e->fw)) {
+        return;
+    }
+    if (!e->functions_valid) {
+        e->next_functions_check = now + FUNCTIONS_ASK_MS;
+        wye_link_send(&e->link, WYE_NODE_TARGET, WYE_MSG_FUNCS_GET, NULL, 0);
+        return;
+    }
+    uint8_t want = (uint8_t)((e->cfg.drive_enabled ? WYE_FN_DRIVE : 0) |
+                             (e->cfg.use_speaker || e->cfg.use_mic ? WYE_FN_AUDIO : 0));
+    if (e->functions.flags == want || e->input.mode != WYE_FWD_OFF || e->player.active) {
+        return;
+    }
+    struct wye_functions f = e->functions;
+    uint8_t buf[1 + 2 * WYE_FN_NAME_MAX];
+    f.flags = want;
+    e->next_functions_check = now + FUNCTIONS_FIX_MS;
+    wye_link_send(&e->link, WYE_NODE_TARGET, WYE_MSG_FUNCS_SET, buf, wye_functions_pack(&f, buf));
+    wye_engine_notice_locked(e, "Updating what the other computer sees - the target Pico restarts");
+}
+
 void wye_engine_tick(struct wye_engine *e, uint64_t now)
 {
     e->jiggler.paused = e->player.active;
@@ -60,6 +92,7 @@ void wye_engine_tick(struct wye_engine *e, uint64_t now)
     }
     maybe_auto_update(e, now);
     keep_profiles(e, now);
+    keep_functions(e, now);
     const struct wye_node_info *t = &e->link.info.target;
     wye_drive_tick(&e->drive, now, wye_link_target_ready(&e->link), t->present && (t->hello.caps & WYE_CAP_DISK),
                    &e->sender);

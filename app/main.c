@@ -67,6 +67,9 @@ int wye_main(int argc, char **argv)
     if (special >= 0) {
         return special;
     }
+    if (!has_flag(argc, argv, "--foreground")) {
+        plat_detach_from_terminal(); /* before the lock: its PID must be the one that stays */
+    }
     bool updated = has_flag(argc, argv, "--updated");
     if (!acquire_instance(updated)) {
         return 0; /* the running instance was asked to show itself */

@@ -31,6 +31,9 @@ feature is free for everyone, with no license keys, accounts or telemetry.
 | **Your Picos** | give each board a name, colour and notes on the Picos page; they are stored on the board itself, so they go wherever it goes |
 | **API** | let your own scripts and apps type and click over there directly, no hotkey needed; see [docs/API.md](docs/API.md) |
 
+Out of the box only the keyboard and mouse are on. Turn the rest on under
+**Devices** (sound, shared folder) and **Settings** (API) when you want them.
+
 ## Get started
 
 You need two Raspberry Pi Picos, three jumper wires and two USB cables.
@@ -58,7 +61,9 @@ You need two Raspberry Pi Picos, three jumper wires and two USB cables.
    <img src="docs/wiring.png" alt="Bridge Pico pin 1 to target pin 2, pin 2 to pin 1, pin 3 to pin 3" width="560">
 
 3. Plug one Pico into each computer. The app installs and updates their firmware.
-4. Press <kbd>F12</kbd> to switch. Press it again to come back.
+4. Open Wye from your app menu or by running `wye`, which returns to the prompt
+   straight away and brings the window to the front if Wye is already running.
+5. Press <kbd>F12</kbd> to switch. Press it again to come back.
 
 Any device that accepts a USB keyboard can be the *other* computer: Macs,
 tablets, Chromebooks, servers and kiosks.
