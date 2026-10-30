@@ -9,6 +9,9 @@
 
 /* Show the window on every workspace / virtual desktop (X11: sticky). */
 void plat_window_all_desktops(void *handle, bool on);
+/* Overlay on: not a window to the system - no taskbar or task-switcher entry, never takes the
+   keyboard focus. Takes effect when it is shown, so call this while the window is hidden. */
+void plat_window_set_overlay(void *handle, bool on);
 /* Move the window to the workspace the user is on now and bring it to the front. */
 void plat_window_to_current_desktop(void *handle);
 /* Pointer position in screen coordinates (window-independent, for dragging). */

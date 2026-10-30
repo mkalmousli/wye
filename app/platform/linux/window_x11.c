@@ -2,7 +2,10 @@
 #include "plat_window.h"
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <string.h>
+
+#include "plat_thread.h"
 
 /* GLFW (built into raylib with its X11 backend) exposes the native handles. */
 Display *glfwGetX11Display(void);
@@ -52,6 +55,54 @@ static long current_desktop(Display *dpy)
         XFree(data);
     }
     return desk;
+}
+
+/* A window manager clears a window's state when it withdraws it, which happens a moment after
+   the window is hidden: anything set before that would be wiped. */
+static void wait_until_withdrawn(Display *dpy, Window w)
+{
+    Atom wm_state = XInternAtom(dpy, "WM_STATE", False);
+    for (int i = 0; i < 20; ++i) {
+        Atom type;
+        int format;
+        unsigned long count, after;
+        unsigned char *data = NULL;
+        XSync(dpy, False);
+        bool mapped = XGetWindowProperty(dpy, w, wm_state, 0, 1, False, wm_state, &type, &format, &count, &after,
+                                         &data) == Success && data && count == 1 && *(long *)data != WithdrawnState;
+        if (data) {
+            XFree(data);
+        }
+        if (!mapped) {
+            return;
+        }
+        plat_sleep_ms(10);
+    }
+}
+
+void plat_window_set_overlay(void *handle, bool on)
+{
+    Display *dpy = handle ? glfwGetX11Display() : NULL;
+    Window w = dpy ? glfwGetX11Window(handle) : 0;
+    if (!w) {
+        return;
+    }
+    XWithdrawWindow(dpy, w, DefaultScreen(dpy));
+    wait_until_withdrawn(dpy, w);
+    /* A dock: what panels are. Window managers leave it out of taskbars and task switchers, keep
+       it on top and never focus it. The states say the same to those that look at them instead. */
+    Atom type = XInternAtom(dpy, on ? "_NET_WM_WINDOW_TYPE_DOCK" : "_NET_WM_WINDOW_TYPE_NORMAL", False);
+    XChangeProperty(dpy, w, XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False), XA_ATOM, 32, PropModeReplace,
+                    (unsigned char *)&type, 1);
+    Atom state = XInternAtom(dpy, "_NET_WM_STATE", False);
+    XDeleteProperty(dpy, w, state);
+    if (on) {
+        Atom states[] = {XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False),
+                         XInternAtom(dpy, "_NET_WM_STATE_SKIP_PAGER", False),
+                         XInternAtom(dpy, "_NET_WM_STATE_STICKY", False)};
+        XChangeProperty(dpy, w, state, XA_ATOM, 32, PropModeReplace, (unsigned char *)states, 3);
+    }
+    XFlush(dpy);
 }
 
 void plat_window_to_current_desktop(void *handle)

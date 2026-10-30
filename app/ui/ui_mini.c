@@ -1,4 +1,4 @@
-/* Mini mode: the window becomes a small always-on-top strip on every workspace. */
+/* Mini mode: the window becomes an overlay, a small strip on every workspace with no taskbar entry. */
 #include "ui.h"
 
 #include "plat_window.h"
@@ -39,6 +39,8 @@ void ui_mini_enter(struct wye_ui *ui)
     }
     g_full_pos = GetWindowPosition();
     g_full_size = (Vector2){(float)GetScreenWidth(), (float)GetScreenHeight()};
+    SetWindowState(FLAG_WINDOW_HIDDEN); /* the system only takes it in as an overlay when it is shown */
+    plat_window_set_overlay(GetWindowHandle(), true);
     SetWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST);
     ClearWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(MINI_W, MINI_H);
@@ -49,6 +51,10 @@ void ui_mini_enter(struct wye_ui *ui)
         ui->mini_pos = (Vector2){at.x + (float)(GetMonitorWidth(mon) - MINI_W - 24), at.y + 40};
     }
     SetWindowPosition((int)ui->mini_pos.x, (int)ui->mini_pos.y);
+    if (!ui->hidden) {
+        ClearWindowState(FLAG_WINDOW_HIDDEN);
+        SetWindowPosition((int)ui->mini_pos.x, (int)ui->mini_pos.y); /* in case it was shown elsewhere */
+    }
     ui->mini = true;
     ui->mini_frames = 0;
     remember(ui);
@@ -61,11 +67,17 @@ void ui_mini_leave(struct wye_ui *ui)
     }
     ui->mini_pos = GetWindowPosition();
     ui->mini_dragging = false;
+    SetWindowState(FLAG_WINDOW_HIDDEN);
+    plat_window_set_overlay(GetWindowHandle(), false);
     ClearWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(FULL_MIN_W, FULL_MIN_H);
     SetWindowSize((int)g_full_size.x, (int)g_full_size.y);
     SetWindowPosition((int)g_full_pos.x, (int)g_full_pos.y);
+    if (!ui->hidden) {
+        ClearWindowState(FLAG_WINDOW_HIDDEN);
+        SetWindowPosition((int)g_full_pos.x, (int)g_full_pos.y);
+    }
     plat_window_to_current_desktop(GetWindowHandle()); /* not back on workspace 1 */
     ui->mini = false;
     remember(ui);
