@@ -51,6 +51,8 @@ struct wye_status {
     struct wye_identity identity[3];
     struct wye_drive_status drive;
     struct wye_audio_status audio;  /* sound routes between the bridge and this computer */
+    bool profile_valid[3];          /* indexed by node id */
+    struct wye_profile profile[3];  /* name, colour and notes stored on each board */
     bool functions_valid;           /* target answered WYE_MSG_FUNCS */
     struct wye_functions functions;                /* HID usage, 0 until a key was pressed */
 };
@@ -84,6 +86,8 @@ bool wye_engine_identity_set(uint8_t node, const struct wye_identity *id);
 /* The target's USB parts (names, drive on/off); applied when it restarts. */
 bool wye_engine_functions_request(void);
 bool wye_engine_functions_set(const struct wye_functions *f);
+/* Your name, colour and notes for a board, saved in its flash; no restart. */
+bool wye_engine_profile_set(uint8_t node, const struct wye_profile *f);
 /* Legacy/old firmware: reboot a generic Pico on `port` into BOOTSEL. */
 bool wye_engine_rescue_legacy(void);
 

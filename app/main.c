@@ -41,7 +41,6 @@ static bool acquire_instance(bool updated)
 
 static void init_config(struct wye_ui *ui)
 {
-    wye_pico_names_load(&ui->pico_names);
     if (!wye_config_load(&ui->cfg) || ui->cfg.first_run == 0) {
         ui->page = PAGE_SETUP; /* first launch: guide the user */
     }

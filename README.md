@@ -28,7 +28,7 @@ feature is free for everyone, with no license keys, accounts or telemetry.
 | **Sound** | hear the other computer and talk into its calls, both ways |
 | **Shared folder** | shows up as a USB drive over there and syncs both ways |
 | **Automation** | type the clipboard into anything, record and replay routines, Ctrl+Alt+Del on demand |
-| **Your Picos** | name each board and give it a colour on the Picos page; both stay with that board |
+| **Your Picos** | give each board a name, colour and notes on the Picos page; they are stored on the board itself, so they go wherever it goes |
 | **API** | let your own scripts and apps type and click over there directly, no hotkey needed; see [docs/API.md](docs/API.md) |
 
 ## Get started

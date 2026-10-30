@@ -46,6 +46,8 @@ static uint8_t status(void *ctx) { return host_present(ctx) ? WYE_BSTATE_HOST_DT
 
 static bool identity_get(void *ctx, struct wye_identity *id) { (void)ctx; *id = *identity_current(); return true; }
 static bool identity_set(void *ctx, const struct wye_identity *id) { (void)ctx; return identity_save(id); }
+static bool profile_get(void *ctx, struct wye_profile *f) { (void)ctx; *f = *profile_current(); return true; }
+static bool profile_set(void *ctx, const struct wye_profile *f) { (void)ctx; return profile_save(f); }
 
 /* Arduino-style recovery: opening the port at 1200 baud enters BOOTSEL. */
 void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const *coding)
@@ -60,7 +62,7 @@ int main(void)
 {
     static struct wye_node_hooks hooks = {
         .now_ms = now_ms, .send_host = send_host, .status = status, .reboot = reboot,
-        .install = install, .identity_get = identity_get, .identity_set = identity_set,
+        .install = install, .identity_get = identity_get, .identity_set = identity_set, .profile_get = profile_get, .profile_set = profile_set,
         .audio_rx = wye_usb_audio_rx,
     };
     static const struct wye_bridge_io io = {NULL, uart_out, host_present};
@@ -68,9 +70,10 @@ int main(void)
 
     wye_crash_start();
     identity_init(&g_default_id);
+    profile_init();
     hooks.flash = fw_flash_ops(wye_fw_role_tag);
     board_hello(&hello, WYE_ROLE_BRIDGE,
-                WYE_CAP_FW_UPDATE | WYE_CAP_IDENTITY | WYE_CAP_AUDIO);
+                WYE_CAP_FW_UPDATE | WYE_CAP_IDENTITY | WYE_CAP_AUDIO | WYE_CAP_PROFILE);
     wye_usb_audio_init(2, 0x03, 0x83, true); /* as in usb_desc.c */
     tusb_init();
     uart_link_init();

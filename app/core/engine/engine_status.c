@@ -43,6 +43,8 @@ void wye_engine_status(struct wye_status *s)
     memcpy(s->identity, e->identity, sizeof(s->identity));
     wye_drive_status(&e->drive, &s->drive);
     wye_activity_take(&e->activity, &s->activity);
+    memcpy(s->profile_valid, e->profile_valid, sizeof(s->profile_valid));
+    memcpy(s->profile, e->profile, sizeof(s->profile));
     s->functions_valid = e->functions_valid;
     s->functions = e->functions;
     plat_mutex_unlock(e->lock);

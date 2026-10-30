@@ -44,6 +44,7 @@ struct sim_device {
     struct wye_bridge_io bridge_io;
     struct sim_flash target_flash, bridge_flash;
     struct wye_functions functions;    /* what the target stores */
+    struct wye_profile profile;        /* the target's name, colour and notes */
     uint8_t to_host[SIM_IO_MAX];  /* bytes the bridge sent to the host */
     size_t to_host_len;
 };
@@ -60,5 +61,7 @@ void sim_setup_hid(struct sim_device *s);
 void sim_setup_flash(struct sim_flash *f);
 bool sim_fn_get(void *ctx, struct wye_functions *f);
 bool sim_fn_set(void *ctx, const struct wye_functions *f);
+bool sim_profile_get(void *ctx, struct wye_profile *f);
+bool sim_profile_set(void *ctx, const struct wye_profile *f);
 
 #endif

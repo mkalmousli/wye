@@ -65,6 +65,16 @@ bool wye_engine_functions_set(const struct wye_functions *f)
     return ok;
 }
 
+bool wye_engine_profile_set(uint8_t node, const struct wye_profile *f)
+{
+    uint8_t buf[WYE_PROFILE_PACKED_MAX];
+    size_t n = wye_profile_pack(f, buf);
+    plat_mutex_lock(g_engine.lock);
+    bool ok = wye_link_send(&g_engine.link, node, WYE_MSG_PROFILE_SET, buf, n);
+    plat_mutex_unlock(g_engine.lock);
+    return ok;
+}
+
 bool wye_engine_rescue_legacy(void)
 {
     char port[PLAT_PORT_PATH_MAX];

@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+#define PROFILE_ASK_MS 2000u
+
 static void maybe_auto_update(struct wye_engine *e, uint64_t now)
 {
     if (!e->cfg.auto_firmware || wye_fw_session_busy(&e->fw) || e->input.mode != WYE_FWD_OFF ||
@@ -27,6 +29,24 @@ static void maybe_auto_update(struct wye_engine *e, uint64_t now)
     }
 }
 
+/* Asks each board for its profile when it appears, and again until it answers. */
+static void keep_profiles(struct wye_engine *e, uint64_t now)
+{
+    const struct wye_node_info *nodes[] = {&e->link.info.bridge, &e->link.info.target};
+    const uint8_t ids[] = {WYE_NODE_BRIDGE, WYE_NODE_TARGET};
+    for (int i = 0; i < 2; ++i) {
+        uint8_t id = ids[i];
+        if (!nodes[i]->present) {
+            e->profile_valid[id] = false;
+            e->next_profile_ask[id] = 0;
+        } else if (!e->profile_valid[id] && (nodes[i]->hello.caps & WYE_CAP_PROFILE) && now >= e->next_profile_ask[id] &&
+                   !wye_fw_session_busy(&e->fw)) {
+            e->next_profile_ask[id] = now + PROFILE_ASK_MS;
+            wye_link_send(&e->link, id, WYE_MSG_PROFILE_GET, NULL, 0);
+        }
+    }
+}
+
 void wye_engine_tick(struct wye_engine *e, uint64_t now)
 {
     e->jiggler.paused = e->player.active;
@@ -39,6 +59,7 @@ void wye_engine_tick(struct wye_engine *e, uint64_t now)
         e->fw.phase = WYE_FWS_IDLE;
     }
     maybe_auto_update(e, now);
+    keep_profiles(e, now);
     const struct wye_node_info *t = &e->link.info.target;
     wye_drive_tick(&e->drive, now, wye_link_target_ready(&e->link), t->present && (t->hello.caps & WYE_CAP_DISK),
                    &e->sender);
@@ -56,6 +77,9 @@ void wye_engine_on_packet(void *ctx, const struct wye_packet *pkt)
     }
     if (pkt->type == WYE_MSG_FUNCS && pkt->node == WYE_NODE_TARGET) {
         e->functions_valid = wye_functions_unpack(pkt->payload, pkt->len, &e->functions);
+    }
+    if (pkt->type == WYE_MSG_PROFILE && (pkt->node == WYE_NODE_BRIDGE || pkt->node == WYE_NODE_TARGET)) {
+        e->profile_valid[pkt->node] = wye_profile_unpack(pkt->payload, pkt->len, &e->profile[pkt->node]);
     }
     if (pkt->type == WYE_MSG_IDENTITY && pkt->node <= WYE_NODE_TARGET) {
         e->identity_valid[pkt->node] = wye_identity_unpack(pkt->payload, pkt->len, &e->identity[pkt->node]);

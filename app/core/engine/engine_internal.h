@@ -31,6 +31,9 @@ struct wye_engine {
     struct wye_fw_session fw;
     struct wye_drive drive;
     struct wye_activity activity;
+    bool profile_valid[3];         /* per node id: the board told us its profile */
+    struct wye_profile profile[3];
+    uint64_t next_profile_ask[3];
     bool auto_fw_tried[3];         /* per node id, once per connection */
     uint64_t next_capture_retry;
     bool learning_key;

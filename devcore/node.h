@@ -26,6 +26,8 @@ struct wye_node_hooks {
     bool (*identity_set)(void *ctx, const struct wye_identity *id);
     bool (*functions_get)(void *ctx, struct wye_functions *f);    /* NULL on the bridge */
     bool (*functions_set)(void *ctx, const struct wye_functions *f);
+    bool (*profile_get)(void *ctx, struct wye_profile *f);
+    bool (*profile_set)(void *ctx, const struct wye_profile *f);
     const struct wye_flash_ops *flash;          /* NULL: updates unsupported */
     void (*audio_rx)(void *ctx, const uint8_t *data, size_t len);
 };

@@ -49,6 +49,29 @@ static void set_functions(struct wye_node *n, const struct wye_packet *pkt)
     }
 }
 
+static void send_profile(struct wye_node *n, uint8_t seq)
+{
+    struct wye_profile f;
+    uint8_t buf[WYE_PROFILE_PACKED_MAX];
+    if (!n->hooks->profile_get || !n->hooks->profile_get(n->hooks->ctx, &f)) {
+        wye_node_error(n, seq, WYE_ERR_UNKNOWN_TYPE, WYE_MSG_PROFILE_GET);
+        return;
+    }
+    wye_node_send(n, WYE_MSG_PROFILE, seq, buf, wye_profile_pack(&f, buf));
+}
+
+static void set_profile(struct wye_node *n, const struct wye_packet *pkt)
+{
+    struct wye_profile f;
+    if (!wye_profile_unpack(pkt->payload, pkt->len, &f)) {
+        wye_node_error(n, pkt->seq, WYE_ERR_BAD_LENGTH, pkt->type);
+    } else if (!n->hooks->profile_set || !n->hooks->profile_set(n->hooks->ctx, &f)) {
+        wye_node_error(n, pkt->seq, WYE_ERR_BUSY, pkt->type);
+    } else {
+        send_profile(n, pkt->seq); /* no restart: nothing changes for the computer it is plugged into */
+    }
+}
+
 bool wye_node_handle_ident(struct wye_node *n, const struct wye_packet *pkt)
 {
     switch (pkt->type) {
@@ -56,6 +79,8 @@ bool wye_node_handle_ident(struct wye_node *n, const struct wye_packet *pkt)
     case WYE_MSG_IDENTITY_SET: set_identity(n, pkt); return true;
     case WYE_MSG_FUNCS_GET: send_functions(n, pkt->seq); return true;
     case WYE_MSG_FUNCS_SET: set_functions(n, pkt); return true;
+    case WYE_MSG_PROFILE_GET: send_profile(n, pkt->seq); return true;
+    case WYE_MSG_PROFILE_SET: set_profile(n, pkt); return true;
     default: return false;
     }
 }

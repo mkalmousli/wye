@@ -60,6 +60,7 @@ void sim_init(struct sim_device *s)
         .ctx = s, .now_ms = now_ms, .send_host = target_send, .status = target_status,
         .leds = target_leds, .reboot = reboot, .install = install_target,
         .flash = &s->target_flash.ops, .functions_get = sim_fn_get, .functions_set = sim_fn_set,
+        .profile_get = sim_profile_get, .profile_set = sim_profile_set,
     };
     s->bridge_hooks = (struct wye_node_hooks){
         .ctx = s, .now_ms = now_ms, .send_host = bridge_send, .reboot = reboot,

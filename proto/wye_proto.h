@@ -57,6 +57,9 @@ enum wye_msg {
     WYE_MSG_FUNCS_GET = 0x38,    /* h->t  what the target shows the other PC */
     WYE_MSG_FUNCS = 0x39,        /* t->h  struct wye_functions */
     WYE_MSG_FUNCS_SET = 0x3a,    /* h->t  struct wye_functions; applied on reboot */
+    WYE_MSG_PROFILE_GET = 0x3b,  /* h->n  your name, colour and notes for this board */
+    WYE_MSG_PROFILE = 0x3c,      /* n->h  struct wye_profile */
+    WYE_MSG_PROFILE_SET = 0x3d,  /* h->n  struct wye_profile; kept in flash, applied at once */
     /* Shared drive: blocks of the target's USB drive live on the host */
     WYE_MSG_DISK_SET = 0x40,     /* h->t  u8 present, u32 block count */
     WYE_MSG_DISK_STATUS = 0x41,  /* t->h  u8 WYE_DISK_* flags (on change and after DISK_SET) */
@@ -80,6 +83,7 @@ enum wye_caps {
     WYE_CAP_IDENTITY = 1u << 5,
     WYE_CAP_DISK = 1u << 6,
     WYE_CAP_AUDIO = 1u << 7,
+    WYE_CAP_PROFILE = 1u << 8,
 };
 
 enum wye_tstate {

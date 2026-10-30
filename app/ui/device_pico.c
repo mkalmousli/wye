@@ -77,11 +77,15 @@ void device_pico_card(struct wye_ui *ui, Rectangle r, const struct device_pico *
         return;
     }
     float x = c.x + 170;
-    const char *name = ui_pico_name(ui, n, p->title);
+    const char *name = ui_pico_name(ui, p->node, p->title);
     title(ui, name, (Rectangle){x, c.y, c.width - 170, 30});
     ui_text(ui, p->where, x, c.y + 32, UI_FONT_SMALL, UI_MUTED);
-    if (name != p->title) {
-        ui_text(ui, p->title, x, c.y + 50, UI_FONT_SMALL, UI_MUTED); /* still say which board it is */
+    const char *notes = ui->st.profile_valid[p->node] ? ui->st.profile[p->node].notes : "";
+    if (name != p->title || notes[0]) { /* still say which board it is */
+        const char *line = name == p->title ? notes : notes[0] ? TextFormat("%s - %s", p->title, notes) : p->title;
+        BeginScissorMode((int)x, (int)c.y + 48, (int)(c.width - 170), 22);
+        ui_text(ui, line, x, c.y + 50, UI_FONT_SMALL, UI_MUTED);
+        EndScissorMode();
     }
     float y = c.y + 86;
     const struct wye_fw_image *img = wye_fw_embedded(p->role);
@@ -103,7 +107,11 @@ void device_pico_card(struct wye_ui *ui, Rectangle r, const struct device_pico *
         GuiDisable();
     }
     if (ui_button((Rectangle){c.x + c.width - bw, c.y + c.height - UI_ROW, bw, UI_ROW}, "Personalize")) {
-        device_pico_edit_open(ui, p);
+        if (ui->st.profile_valid[p->node]) {
+            device_pico_edit_open(ui, p);
+        } else {
+            ui_toast(ui, "Update this Pico's firmware first: it stores the name");
+        }
     }
     GuiEnable();
 }

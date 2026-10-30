@@ -29,6 +29,11 @@ void functions_init(const struct wye_functions *defaults);
 const struct wye_functions *functions_current(void);
 bool functions_save(const struct wye_functions *f);
 
+/* Your name, colour and notes for this board (same flash sector); blank until set. */
+void profile_init(void);
+const struct wye_profile *profile_current(void);
+bool profile_save(const struct wye_profile *f);
+
 /* Firmware staging + install (fw_flash.c). tag: "WYE-FW:<role>". */
 const struct wye_flash_ops *fw_flash_ops(const char *role_tag);
 void fw_flash_install(uint32_t size);
