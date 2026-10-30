@@ -28,6 +28,7 @@ feature is free for everyone, with no license keys, accounts or telemetry.
 | **Sound** | hear the other computer and talk into its calls, both ways |
 | **Shared folder** | shows up as a USB drive over there and syncs both ways |
 | **Automation** | type the clipboard into anything, Ctrl+Alt+Del on demand; record routines, watch the events live, edit them, strip the useless ones, and replay them up to 10x faster |
+| **System tray** | an icon that shows at a glance whether Wye is running, connected or in control, with quick actions in its menu |
 | **Your Picos** | give each board a name, colour and notes on the Picos page; they are stored on the board itself, so they go wherever it goes |
 | **API** | let your own scripts and apps type and click over there directly, no hotkey needed; see [docs/API.md](docs/API.md) |
 

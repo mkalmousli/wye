@@ -27,5 +27,5 @@ void page_settings(struct wye_ui *ui, Rectangle a)
     ui_text(ui, "How you switch, and how Wye runs on this computer.", a.x + 136, a.y + 8, UI_FONT_SMALL,
             UI_MUTED);
     control_card(ui, (Rectangle){a.x, a.y + 56, a.width, 136});
-    settings_system_card(ui, (Rectangle){a.x, a.y + 208, a.width, a.height - 208 < 276 ? a.height - 208 : 276});
+    settings_system_card(ui, (Rectangle){a.x, a.y + 208, a.width, a.height - 208 < 316 ? a.height - 208 : 316});
 }

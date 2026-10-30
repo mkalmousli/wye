@@ -17,6 +17,7 @@ static const struct wye_cfg_field FIELDS[] = {
     F("invert_wheel", WYE_CFG_BOOL, invert_wheel),
     F("update_mode", WYE_CFG_INT, update_mode),
     F("api_enabled", WYE_CFG_BOOL, api_enabled),
+    F("tray_enabled", WYE_CFG_BOOL, tray_enabled),
     F("auto_firmware", WYE_CFG_BOOL, auto_firmware),
     F("start_at_login", WYE_CFG_BOOL, start_at_login),
     F("start_hidden", WYE_CFG_BOOL, start_hidden),
@@ -54,6 +55,7 @@ void wye_config_defaults(struct wye_config *c)
     c->sensitivity = 100;
     c->update_mode = WYE_UPDATE_AUTO;
     c->api_enabled = false;
+    c->tray_enabled = true;
     c->auto_firmware = true;
     c->hud_mode = WYE_HUD_FORWARDING;
     c->probe_generic_pico = true;

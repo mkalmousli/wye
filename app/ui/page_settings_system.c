@@ -69,6 +69,13 @@ void settings_system_card(struct wye_ui *ui, Rectangle r)
         }
         ui_save_config(ui);
     }
+    y += UI_ROW + 4;
+    if (ui_toggle((Rectangle){c.x, y, 300, UI_ROW}, "Show an icon in the system tray", &ui->cfg.tray_enabled)) {
+        ui_save_config(ui);
+    }
+    if (ui->cfg.tray_enabled && !ui_tray_showing()) {
+        ui_text(ui, "No system tray found on this desktop yet.", c.x + 400, y + 10, UI_FONT_SMALL, UI_MUTED);
+    }
     y = row;
     int open_as = ui->cfg.start_hidden ? 1 : 0, before = open_as;
     ui_text(ui, "Open as", c.x + 400, y + 9, UI_FONT_SMALL, UI_MUTED);

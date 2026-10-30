@@ -4,6 +4,17 @@
 #include "plat_sys.h"
 #include "plat_window.h"
 
+void ui_show_window(struct wye_ui *ui)
+{
+    ClearWindowState(FLAG_WINDOW_HIDDEN | FLAG_WINDOW_MINIMIZED);
+    ui->hidden = false;
+    if (ui->mini) {
+        ui_mini_leave(ui);
+    }
+    plat_window_to_current_desktop(GetWindowHandle());
+    SetWindowFocused();
+}
+
 void ui_handle_requests(struct wye_ui *ui)
 {
     unsigned req = wye_engine_take_ui_requests();
@@ -22,11 +33,7 @@ void ui_handle_requests(struct wye_ui *ui)
         ui_open_shared_folder(ui);
     }
     if ((req & WYE_UI_REQ_SHOW) || plat_instance_show_requested()) {
-        ClearWindowState(FLAG_WINDOW_HIDDEN | FLAG_WINDOW_MINIMIZED);
-        ui->hidden = false;
-        if (ui->mini) ui_mini_leave(ui);
-        plat_window_to_current_desktop(GetWindowHandle());
-        SetWindowFocused();
+        ui_show_window(ui);
     }
     char notice[WYE_NOTICE_LEN];
     while (wye_engine_take_notice(notice, sizeof(notice))) {

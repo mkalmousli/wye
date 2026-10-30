@@ -20,6 +20,7 @@ struct wye_config {
     bool invert_wheel;
     int update_mode;            /* enum wye_update_mode */
     bool api_enabled;           /* other apps of this user may drive the target */
+    bool tray_enabled;          /* an icon in the system tray */
     bool auto_firmware;         /* update Picos automatically when idle */
     bool start_at_login;
     bool start_hidden;

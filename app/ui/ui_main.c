@@ -27,6 +27,8 @@ static void frame(struct wye_ui *ui)
         ui->quit = true;
     }
     ui_handle_requests(ui);
+    ui_tray_tick(ui);
+    ui_update_title(ui);
     if (ui->page != PAGE_SHORTCUTS) {
         shortcuts_stop_learning();
     }
@@ -84,6 +86,7 @@ int wye_ui_run(struct wye_ui *ui)
         SetTargetFPS(ui->hidden || IsWindowMinimized() ? 10 : 60);
         frame(ui);
     }
+    ui_tray_stop();
     ui_theme_unload(ui);
     CloseWindow();
     return 0;
