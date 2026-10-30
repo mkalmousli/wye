@@ -59,12 +59,13 @@ void home_map(struct wye_ui *ui, Rectangle r)
     ui_card(ui, r, NULL);
     float cy = r.y + (r.height - 124) / 2 + 30, step = (r.width - 120) / 3; /* nodes + labels + LEDs: 124 px */
     struct map_node n[4] = {
-        {MAP_COMPUTER, "This computer", input ? "keyboard & mouse ready" : "input blocked", input ? MAP_OK : MAP_WARN},
-        {MAP_PICO, "Bridge Pico", bridge ? map_version(&l->bridge) : "not found", bridge ? MAP_OK : MAP_BAD},
-        {MAP_PICO, "Target Pico", target ? map_version(&l->target) : bridge ? "not answering" : "-",
-         target ? MAP_OK : bridge ? MAP_BAD : MAP_OFF},
+        {MAP_COMPUTER, "This computer", input ? "keyboard & mouse ready" : "input blocked", input ? MAP_OK : MAP_WARN, BLANK},
+        {MAP_PICO, ui_pico_name(ui, &l->bridge, "Bridge Pico"), bridge ? map_version(&l->bridge) : "not found",
+         bridge ? MAP_OK : MAP_BAD, ui_pico_color(ui, &l->bridge, UI_TEXT)},
+        {MAP_PICO, ui_pico_name(ui, &l->target, "Target Pico"), target ? map_version(&l->target) : bridge ? "not answering" : "-",
+         target ? MAP_OK : bridge ? MAP_BAD : MAP_OFF, ui_pico_color(ui, &l->target, UI_TEXT)},
         {MAP_COMPUTER, "Other computer", asleep ? "asleep" : mounted ? "connected" : "-",
-         asleep ? MAP_WARN : mounted ? MAP_OK : MAP_OFF},
+         asleep ? MAP_WARN : mounted ? MAP_OK : MAP_OFF, BLANK},
     };
     Vector2 at[4];
     for (int i = 0; i < 4; ++i) {

@@ -33,7 +33,7 @@ void map_node_draw(struct wye_ui *ui, const struct map_node *n, Vector2 at, bool
     ui_glow(at, 46 + 8 * beat, col, 0.16f + 0.18f * beat);
     DrawCircleV(at, 30, UI_CARD_HI);
     DrawRing(at, 28, 31, 0, 360, 48, n->state == MAP_OFF && !controlled ? UI_CARD_EDGE : col);
-    Color glyph = n->state == MAP_OFF ? UI_MUTED : UI_TEXT;
+    Color glyph = n->state == MAP_OFF ? UI_MUTED : n->glyph.a ? n->glyph : UI_TEXT;
     (n->kind == MAP_COMPUTER ? computer : pico)(at, glyph);
     Vector2 m = ui_measure(n->title, UI_FONT_SMALL, true);
     ui_text_bold(ui, n->title, at.x - m.x / 2, at.y + 38, UI_FONT_SMALL, UI_TEXT);

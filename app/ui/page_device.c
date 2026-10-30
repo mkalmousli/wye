@@ -37,7 +37,7 @@ void page_device(struct wye_ui *ui, Rectangle a)
 {
     const struct wye_link_info *l = &ui->st.link;
     ui_text_bold(ui, "Picos", a.x, a.y - 4, 30, UI_TEXT);
-    ui_text(ui, "The two boards, the firmware they run, and how healthy the link is.", a.x + 96, a.y + 8,
+    ui_text(ui, "The two boards: their names, their firmware, and how healthy the link is.", a.x + 96, a.y + 8,
             UI_FONT_SMALL, UI_MUTED);
     float y = a.y + 56;
     if (l->state == WYE_LINK_LEGACY) {
@@ -46,9 +46,9 @@ void page_device(struct wye_ui *ui, Rectangle a)
     }
     struct device_pico picos[2] = {
         {"Bridge Pico", "Plugged into this computer", "Not found - plug it in", &l->bridge, WYE_ROLE_BRIDGE,
-         WYE_NODE_BRIDGE, ui->st.bridge_outdated, UI_ACCENT},
+         WYE_NODE_BRIDGE, ui->st.bridge_outdated, ui_pico_color(ui, &l->bridge, UI_ACCENT)},
         {"Target Pico", "Plugged into the other computer", l->bridge.present ? "Not answering - check the wires" : "-",
-         &l->target, WYE_ROLE_TARGET, WYE_NODE_TARGET, ui->st.target_outdated, UI_TARGET},
+         &l->target, WYE_ROLE_TARGET, WYE_NODE_TARGET, ui->st.target_outdated, ui_pico_color(ui, &l->target, UI_TARGET)},
     };
     bool wide = a.width >= 860;
     float w = wide ? (a.width - UI_PAD) / 2 : a.width, h = 236;

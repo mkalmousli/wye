@@ -11,6 +11,7 @@ struct map_node {
     enum map_kind kind;
     const char *title, *detail;
     enum map_state state;
+    Color glyph;     /* a Pico's own colour; unset: plain */
 };
 
 void map_node_draw(struct wye_ui *ui, const struct map_node *n, Vector2 at, bool controlled);

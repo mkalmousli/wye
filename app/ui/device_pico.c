@@ -23,6 +23,18 @@ static void features(struct wye_ui *ui, float x, float y, uint32_t caps)
     }
 }
 
+/* A long name gets smaller before it gets cut off. */
+static void title(struct wye_ui *ui, const char *name, Rectangle r)
+{
+    float size = 22;
+    while (size > 15 && ui_measure(name, size, true).x > r.width) {
+        size -= 2;
+    }
+    BeginScissorMode((int)r.x, (int)r.y, (int)r.width, (int)r.height);
+    ui_text_bold(ui, name, r.x, r.y + (22 - size) / 2, size, UI_TEXT);
+    EndScissorMode();
+}
+
 /* The update area: progress while this Pico is being written, else the button. */
 static void action(struct wye_ui *ui, Rectangle r, const struct device_pico *p, const struct wye_fw_image *img)
 {
@@ -60,9 +72,17 @@ void device_pico_card(struct wye_ui *ui, Rectangle r, const struct device_pico *
         ui_glow((Vector2){board.x + 75, board.y + 30}, 90, p->tint, writing ? 0.3f : 0.14f);
     }
     art_pico(ui, board, p->role, led);
+    if (device_pico_editing(p->node)) {
+        device_pico_editor(ui, c, p);
+        return;
+    }
     float x = c.x + 170;
-    ui_text_bold(ui, p->title, x, c.y, 22, UI_TEXT);
+    const char *name = ui_pico_name(ui, n, p->title);
+    title(ui, name, (Rectangle){x, c.y, c.width - 170, 30});
     ui_text(ui, p->where, x, c.y + 32, UI_FONT_SMALL, UI_MUTED);
+    if (name != p->title) {
+        ui_text(ui, p->title, x, c.y + 50, UI_FONT_SMALL, UI_MUTED); /* still say which board it is */
+    }
     float y = c.y + 86;
     const struct wye_fw_image *img = wye_fw_embedded(p->role);
     if (!n->present) {
@@ -77,5 +97,13 @@ void device_pico_card(struct wye_ui *ui, Rectangle r, const struct device_pico *
                 UI_FONT_SMALL, UI_MUTED);
         features(ui, c.x, y + 36, h->caps);
     }
-    action(ui, (Rectangle){c.x, c.y + c.height - UI_ROW, c.width, UI_ROW}, p, img);
+    float bw = 120;
+    action(ui, (Rectangle){c.x, c.y + c.height - UI_ROW, c.width - bw - 8, UI_ROW}, p, img);
+    if (!n->present) {
+        GuiDisable();
+    }
+    if (ui_button((Rectangle){c.x + c.width - bw, c.y + c.height - UI_ROW, bw, UI_ROW}, "Personalize")) {
+        device_pico_edit_open(ui, p);
+    }
+    GuiEnable();
 }
