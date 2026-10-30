@@ -41,7 +41,22 @@ void wye_recorder_note(struct wye_recorder *r, uint64_t now, uint8_t type, const
     }
     wye_hex_encode(p, len, hex, sizeof(hex));
     fprintf(r->file, "%lu %u %s\n", (unsigned long)(now - r->start), type, hex);
+    struct wye_routine_event *t = &r->tail[r->events % WYE_ROUTINE_TAIL];
+    t->t = (uint32_t)(now - r->start);
+    t->type = type;
+    t->len = (uint8_t)len;
+    memcpy(t->payload, p, len);
     r->events++;
+}
+
+int wye_recorder_tail(const struct wye_recorder *r, struct wye_routine_event *out, int max)
+{
+    unsigned long have = r->events < WYE_ROUTINE_TAIL ? r->events : WYE_ROUTINE_TAIL;
+    int n = have < (unsigned long)max ? (int)have : max;
+    for (int i = 0; i < n; ++i) {
+        out[i] = r->tail[(r->events - (unsigned long)n + (unsigned long)i) % WYE_ROUTINE_TAIL];
+    }
+    return n;
 }
 
 void wye_recorder_stop(struct wye_recorder *r)

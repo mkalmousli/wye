@@ -11,6 +11,8 @@ void page_home(struct wye_ui *ui, Rectangle area);
 void page_routines(struct wye_ui *ui, Rectangle area);
 void page_device(struct wye_ui *ui, Rectangle area);
 void page_settings(struct wye_ui *ui, Rectangle area);
+void page_shortcuts(struct wye_ui *ui, Rectangle area);
+void shortcuts_stop_learning(void);  /* leaving the page must not leave Wye waiting for a key */
 void page_about(struct wye_ui *ui, Rectangle area);
 void page_setup(struct wye_ui *ui, Rectangle area);
 void page_devices(struct wye_ui *ui, Rectangle area);
@@ -21,5 +23,6 @@ void ui_mini_enter(struct wye_ui *ui);
 void ui_mini_leave(struct wye_ui *ui);
 void ui_mini_panel(struct wye_ui *ui);
 void ui_mini_follow_control(struct wye_ui *ui);
+void ui_mini_restore_position(struct wye_ui *ui);
 
 #endif

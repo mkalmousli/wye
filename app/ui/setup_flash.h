@@ -1,7 +1,7 @@
 /*
- * Setup wizard: installing the firmware on both Picos, one at a time and in
- * any order. Each Pico that shows up in BOOTSEL mode is asked about ("which
- * one is this?") before anything is written, so one USB port can serve both.
+ * Setup wizard: installing the firmware on both Picos with no questions. A Pico
+ * that shows up in BOOTSEL mode is installed right away: the first becomes the
+ * bridge, the next the target, with an override for the unusual case.
  * BOOTSEL is only needed for a Pico's very first install: Picos that already
  * run Wye are updated over USB (the target through the bridge), and old
  * firmware is restarted into install mode by software.
@@ -18,7 +18,7 @@ enum flash_phase {
     FLASH_WAITING = 0,   /* no Pico in BOOTSEL mode yet */
     FLASH_OPENING,       /* Pico found, its drive is not ready yet */
     FLASH_STUCK,         /* the drive never appeared: the user has to help */
-    FLASH_ASK,           /* a Pico is ready: the user says which one it is */
+    FLASH_ONE_AT_A_TIME, /* several in BOOTSEL mode: which is which could not be told apart later */
     FLASH_INSTALLING,    /* firmware copied, waiting for the Pico to restart */
     FLASH_DONE,          /* that Pico is finished */
     FLASH_ALL_SET,       /* both Picos already run current firmware */
@@ -32,7 +32,11 @@ struct flash_state {
     enum flash_phase phase;
     double since;                 /* GetTime() when the phase began */
     double polled;
-    uint8_t role;                 /* WYE_ROLE_* chosen for the Pico at hand, 0 = not asked yet */
+    uint8_t role;                 /* WYE_ROLE_* of the Pico at hand, 0 = none yet */
+    uint8_t forced_role;          /* restarted into BOOTSEL by us: we know which one comes back */
+    int next_role;                /* the user's override: 0 automatic, else WYE_ROLE_* */
+    bool bootsel_tried;           /* the bridge was already asked to restart into BOOTSEL */
+    bool link_failed[3];          /* per WYE_ROLE_*: refused the update over USB, needs BOOTSEL */
     bool done[3];                 /* per WYE_ROLE_*: installed now or found up to date */
     bool reinstall;               /* user chose to install again: ignore "up to date" */
     bool write_pending;           /* copy on the next frame, after it was drawn */
@@ -47,8 +51,9 @@ enum flash_action {
     FLASH_ACT_NONE = 0,
     FLASH_ACT_RETRY,
     FLASH_ACT_REINSTALL,
-    FLASH_ACT_PICK_BRIDGE,
-    FLASH_ACT_PICK_TARGET,
+    FLASH_ACT_NEXT_AUTO,
+    FLASH_ACT_NEXT_BRIDGE,
+    FLASH_ACT_NEXT_TARGET,
 };
 
 static inline bool flash_both_done(const struct flash_state *s)

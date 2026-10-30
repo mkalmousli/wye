@@ -25,7 +25,6 @@ void ui_handle_requests(struct wye_ui *ui)
         ClearWindowState(FLAG_WINDOW_HIDDEN | FLAG_WINDOW_MINIMIZED);
         ui->hidden = false;
         if (ui->mini) ui_mini_leave(ui);
-        ui->mini_for_control = false;
         plat_window_to_current_desktop(GetWindowHandle());
         SetWindowFocused();
     }

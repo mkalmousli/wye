@@ -10,6 +10,28 @@
 
 static Vector2 g_full_pos, g_full_size = {1000, 660};
 
+/* Which window it was and where the panel sat, for the next start. */
+static void remember(struct wye_ui *ui)
+{
+    ui->cfg.last_mini = ui->mini;
+    ui->cfg.mini_x = (int)ui->mini_pos.x;
+    ui->cfg.mini_y = (int)ui->mini_pos.y;
+    wye_config_save(&ui->cfg);
+}
+
+/* The last place the panel sat, unless that screen has gone. */
+void ui_mini_restore_position(struct wye_ui *ui)
+{
+    for (int m = 0; m < GetMonitorCount(); ++m) {
+        Vector2 at = GetMonitorPosition(m);
+        if (ui->cfg.mini_x >= at.x && ui->cfg.mini_x + MINI_W <= at.x + GetMonitorWidth(m) &&
+            ui->cfg.mini_y >= at.y && ui->cfg.mini_y + MINI_H <= at.y + GetMonitorHeight(m)) {
+            ui->mini_pos = (Vector2){(float)ui->cfg.mini_x, (float)ui->cfg.mini_y};
+            return;
+        }
+    }
+}
+
 void ui_mini_enter(struct wye_ui *ui)
 {
     if (ui->mini) {
@@ -29,6 +51,7 @@ void ui_mini_enter(struct wye_ui *ui)
     SetWindowPosition((int)ui->mini_pos.x, (int)ui->mini_pos.y);
     ui->mini = true;
     ui->mini_frames = 0;
+    remember(ui);
 }
 
 void ui_mini_leave(struct wye_ui *ui)
@@ -45,6 +68,7 @@ void ui_mini_leave(struct wye_ui *ui)
     SetWindowPosition((int)g_full_pos.x, (int)g_full_pos.y);
     plat_window_to_current_desktop(GetWindowHandle()); /* not back on workspace 1 */
     ui->mini = false;
+    remember(ui);
 }
 
 /* Window managers may drop "sticky" while they remap the undecorated window: say it a few times. */
@@ -77,6 +101,10 @@ void ui_mini_drag(struct wye_ui *ui, Rectangle grip)
         ui->mini_cur0[1] = cy;
     }
     if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        if (ui->mini_dragging) {
+            ui->mini_pos = GetWindowPosition();
+            remember(ui);
+        }
         ui->mini_dragging = false;
     }
     if (ui->mini_dragging && screen) {
@@ -84,16 +112,14 @@ void ui_mini_drag(struct wye_ui *ui, Rectangle grip)
     }
 }
 
-/* While controlling the other computer only the mini strip shows; afterwards the full window returns. */
+/* Taking control shrinks the window to the mini strip, once: it stays that way, afterwards too,
+   until the user asks for the full window, even while still in control. */
 void ui_mini_follow_control(struct wye_ui *ui)
 {
+    static bool was_controlling;
     bool fwd = ui->st.mode != WYE_FWD_OFF;
-    bool wanted = ui->cfg.hud_mode == WYE_HUD_FORWARDING && !ui->hidden;
-    if (fwd && wanted && !ui->mini) {
+    if (fwd && !was_controlling && ui->cfg.hud_mode == WYE_HUD_FORWARDING && !ui->hidden) {
         ui_mini_enter(ui);
-        ui->mini_for_control = true;
-    } else if (!fwd && ui->mini_for_control) {
-        ui->mini_for_control = false;
-        ui_mini_leave(ui);
     }
+    was_controlling = fwd;
 }

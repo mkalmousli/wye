@@ -49,18 +49,33 @@ void wye_engine_play_pause(void)
     plat_mutex_unlock(g_engine.lock);
 }
 
-void wye_engine_play_speed(int delta)
+void wye_engine_play_speed(int percent)
 {
     struct wye_player *p = &g_engine.player;
     plat_mutex_lock(g_engine.lock);
     uint64_t now = plat_now_ms();
     uint64_t elapsed = wye_player_elapsed(p, now);
-    int speed = p->speed_percent + delta;
-    p->speed_percent = speed < 25 ? 25 : (speed > 400 ? 400 : speed);
+    p->speed_percent = percent < 25 ? 25 : (percent > 1000 ? 1000 : percent);
     /* Re-anchor so the playhead does not jump when the speed changes. */
     if (p->active) {
         p->start = (p->paused ? p->paused_at : now) - p->paused_total -
                    elapsed * 100u / (uint64_t)p->speed_percent;
     }
     plat_mutex_unlock(g_engine.lock);
+}
+
+int wye_engine_recording_tail(struct wye_routine_event *out, int max)
+{
+    plat_mutex_lock(g_engine.lock);
+    int n = wye_recorder_tail(&g_engine.recorder, out, max);
+    plat_mutex_unlock(g_engine.lock);
+    return n;
+}
+
+bool wye_engine_last_recording(char *out, size_t len)
+{
+    plat_mutex_lock(g_engine.lock);
+    bool ok = g_engine.recorder.path[0] && wye_strcpy(out, len, g_engine.recorder.path);
+    plat_mutex_unlock(g_engine.lock);
+    return ok;
 }

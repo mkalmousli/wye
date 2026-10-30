@@ -9,7 +9,7 @@ struct item { enum wye_page page; enum ui_icon icon; const char *label; };
 static const struct item TOP[] = {
     {PAGE_HOME, UI_ICON_HOME, "Home"},       {PAGE_ROUTINES, UI_ICON_ROUTINE, "Routines"},
     {PAGE_DEVICES, UI_ICON_KEYBOARD, "Devices"}, {PAGE_DEVICE, UI_ICON_CHIP, "Picos"},
-    {PAGE_SETTINGS, UI_ICON_GEAR, "Settings"},
+    {PAGE_SHORTCUTS, UI_ICON_BOLT, "Shortcuts"}, {PAGE_SETTINGS, UI_ICON_GEAR, "Settings"},
 };
 static const struct item ABOUT = {PAGE_ABOUT, UI_ICON_INFO, "About"};
 
@@ -80,11 +80,11 @@ void ui_sidebar(struct wye_ui *ui)
     DrawRectangle(0, 0, (int)UI_SIDEBAR_W, (int)h, UI_SIDEBAR);
     DrawLineEx((Vector2){UI_SIDEBAR_W, 0}, (Vector2){UI_SIDEBAR_W, h}, 1, UI_CARD_EDGE);
     wye_logo(UI_SIDEBAR_W / 2, 36);
-    float marker = -1, y = 76;
-    for (size_t i = 0; i < sizeof(TOP) / sizeof(TOP[0]); ++i, y += 60) {
+    float marker = -1, y = 68;
+    for (size_t i = 0; i < sizeof(TOP) / sizeof(TOP[0]); ++i, y += 56) {
         marker = item(ui, &TOP[i], y) ? y : marker;
     }
-    y = h - 170;
+    y = h - 136;
     marker = item(ui, &ABOUT, y) ? y : marker;
     float shown = ui_tween(ui_id("rail-marker", 0, 0), marker, 16);
     if (marker >= 0) {

@@ -31,7 +31,9 @@ struct wye_config {
     bool drive_enabled;         /* serve the shared folder to the target */
     int drive_size_mb;          /* shared drive capacity, 16..65536 */
     char drive_folder[WYE_CFG_STR]; /* empty: ~/Wye Drive */
-    bool start_mini;            /* open as the small floating panel */
+    bool last_mini;             /* the mini panel was showing when Wye last ran */
+    int mini_x, mini_y;         /* where the mini panel was (both 0: not placed yet) */
+    bool routine_compress;      /* tidy every new recording when it stops */
     bool use_keyboard, use_mouse; /* what the other computer gets while you control it */
     bool use_speaker;           /* hear the other computer's sound here */
     bool use_mic;               /* this computer's microphone becomes the other computer's */

@@ -70,12 +70,11 @@ void settings_system_card(struct wye_ui *ui, Rectangle r)
         ui_save_config(ui);
     }
     y = row;
-    int open_as = ui->cfg.start_hidden ? 2 : ui->cfg.start_mini ? 1 : 0, before = open_as;
+    int open_as = ui->cfg.start_hidden ? 1 : 0, before = open_as;
     ui_text(ui, "Open as", c.x + 400, y + 9, UI_FONT_SMALL, UI_MUTED);
-    open_as = ui_segmented((Rectangle){c.x + 462, y, 276, UI_ROW}, "Window;Mini;Hidden", open_as);
+    open_as = ui_segmented((Rectangle){c.x + 462, y, 276, UI_ROW}, "As I left it;Hidden", open_as);
     if (open_as != before) {
-        ui->cfg.start_hidden = open_as == 2;
-        ui->cfg.start_mini = open_as == 1;
+        ui->cfg.start_hidden = open_as == 1;
         ui_save_config(ui);
     }
 }

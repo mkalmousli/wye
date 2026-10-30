@@ -11,7 +11,9 @@ static bool engine_send(void *ctx, uint8_t type, const void *payload, size_t len
     if (!wye_link_target_ready(&e->link)) {
         return false;
     }
-    wye_recorder_note(&e->recorder, plat_now_ms(), type, payload, len);
+    if (!e->jiggling) {
+        wye_recorder_note(&e->recorder, plat_now_ms(), type, payload, len);
+    }
     e->activity.messages++;
     return wye_link_send(&e->link, WYE_NODE_TARGET, type, payload, len);
 }

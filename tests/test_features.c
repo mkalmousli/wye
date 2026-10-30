@@ -95,3 +95,119 @@ TEST(uf2_to_bin_assembles_blocks)
     wye_put_u32(uf2 + 28, 0x12345678); /* wrong chip family */
     CHECK(!wye_uf2_to_bin(uf2, sizeof(uf2), &bin, &len));
 }
+
+/* ----- editing routines ----- */
+static struct wye_routine_event ev_mouse(uint32_t t, uint8_t buttons, int dx, int dy)
+{
+    struct wye_routine_event e = {.t = t, .type = WYE_MSG_MOUSE};
+    struct wye_mouse m = {buttons, (int16_t)dx, (int16_t)dy, 0, 0};
+    e.len = (uint8_t)wye_mouse_pack(&m, e.payload);
+    return e;
+}
+
+static struct wye_routine_event ev_keys(uint32_t t, uint8_t key)
+{
+    struct wye_routine_event e = {.t = t, .type = WYE_MSG_KEYBOARD};
+    struct wye_keyboard k = {0, {key, 0, 0, 0, 0, 0}};
+    e.len = (uint8_t)wye_keyboard_pack(&k, e.payload);
+    return e;
+}
+
+static void doc_fill(struct wye_routine_doc *d, const struct wye_routine_event *ev, size_t n)
+{
+    wye_routine_doc_free(d);
+    d->ev = calloc(n + 8, sizeof(*d->ev));
+    d->cap = n + 8;
+    d->count = n;
+    memcpy(d->ev, ev, n * sizeof(*ev));
+}
+
+TEST(routine_edit_delete_duplicate_move_delay_speed)
+{
+    struct wye_routine_doc d = {0};
+    const struct wye_routine_event src[] = {ev_keys(100, 4), ev_keys(200, 0), ev_keys(500, 5), ev_keys(700, 0)};
+    doc_fill(&d, src, 4);
+    CHECK_EQ(wye_routine_doc_delay(&d, 0), 100);
+    CHECK_EQ(wye_routine_doc_delay(&d, 2), 300);
+    wye_routine_doc_set_delay(&d, 2, 50);
+    CHECK(d.ev[2].t == 250 && d.ev[3].t == 450); /* what follows moves with it */
+    wye_routine_doc_delete(&d, 1, 2);
+    CHECK_EQ(d.count, 2);
+    CHECK_EQ(d.ev[1].t, 200);                    /* no empty wait is left behind */
+    CHECK(wye_routine_doc_duplicate(&d, 0, 1));
+    CHECK_EQ(d.count, 4);
+    CHECK(d.ev[2].t > d.ev[1].t && d.ev[3].t > d.ev[2].t);
+    CHECK_EQ(d.ev[2].payload[1], d.ev[0].payload[1]);
+    uint8_t first = d.ev[0].payload[1];
+    uint32_t t0 = d.ev[0].t;
+    CHECK(wye_routine_doc_move(&d, 0, 1));
+    CHECK(d.ev[0].t == t0 && d.ev[1].payload[1] == first); /* the event moved, the clock did not */
+    CHECK(!wye_routine_doc_move(&d, 0, -1));
+    CHECK(!wye_routine_doc_move(&d, 3, 1));
+    t0 = d.ev[3].t;
+    wye_routine_doc_speed(&d, 200);
+    CHECK_EQ(d.ev[3].t, t0 / 2);
+    wye_routine_doc_free(&d);
+}
+
+TEST(routine_compress_never_drops_what_matters)
+{
+    struct wye_routine_doc d = {0};
+    const struct wye_routine_event src[] = {
+        ev_keys(5000, 4), ev_keys(5001, 4),         /* a repeat of the same state: useless */
+        ev_mouse(5010, 0, 1, 1), ev_mouse(5015, 0, 2, 2), ev_mouse(5020, 0, 3, 3),
+        ev_mouse(5022, 1, 0, 0),                    /* a button change: must stay */
+        ev_mouse(5024, 1, 0, 0),                    /* the same again: useless */
+        ev_mouse(5026, 1, 4, 4), ev_keys(9000, 0),  /* then a long wait */
+    };
+    doc_fill(&d, src, 9);
+    struct wye_routine_compress plain = {0};
+    CHECK_EQ(wye_routine_doc_compress(&d, &plain), 2);
+    CHECK_EQ(d.ev[0].t, 5000); /* nothing but the useless events changed */
+    doc_fill(&d, src, 9);
+    struct wye_routine_compress all = {true, WYE_ROUTINE_MERGE_MS, true, WYE_ROUTINE_MAX_PAUSE_MS};
+    size_t removed = wye_routine_doc_compress(&d, &all);
+    CHECK_EQ(removed, 4);
+    CHECK_EQ(d.count, 5);
+    CHECK_EQ(d.ev[0].t, 0);    /* no wait before the first event */
+    struct wye_mouse m;
+    CHECK(wye_mouse_unpack(d.ev[1].payload, d.ev[1].len, &m));
+    CHECK(m.dx == 6 && m.dy == 6 && m.buttons == 0);
+    CHECK(wye_mouse_unpack(d.ev[2].payload, d.ev[2].len, &m));
+    CHECK(m.buttons == 1 && !m.dx);
+    CHECK_EQ(d.ev[4].t - d.ev[3].t, WYE_ROUTINE_MAX_PAUSE_MS);
+    wye_routine_doc_free(&d);
+}
+
+TEST(routine_doc_saves_and_loads)
+{
+    struct wye_routine_doc d = {0}, back = {0};
+    const struct wye_routine_event src[] = {ev_keys(1, 4), ev_mouse(2, 0, -3, 7)};
+    char err[64];
+    doc_fill(&d, src, 2);
+    CHECK(wye_routine_doc_save(&d, "out/test-routine.hwr"));
+    CHECK(wye_routine_doc_load(&back, "out/test-routine.hwr", err, sizeof(err)));
+    CHECK_EQ(back.count, 2);
+    CHECK(back.ev[1].t == 2 && back.ev[1].type == WYE_MSG_MOUSE && memcmp(back.ev[1].payload, d.ev[1].payload, d.ev[1].len) == 0);
+    remove("out/test-routine.hwr");
+    wye_routine_doc_free(&d);
+    wye_routine_doc_free(&back);
+}
+
+TEST(recorder_keeps_the_newest_events_for_watching)
+{
+    static struct wye_recorder r;
+    struct wye_routine_event out[8];
+    memset(&r, 0, sizeof(r));
+    r.file = fopen("out/test-tail.hwr", "w");
+    CHECK(r.file != NULL);
+    for (uint8_t i = 0; i < WYE_ROUTINE_TAIL + 5; ++i) {
+        uint8_t p[2] = {i, 0};
+        wye_recorder_note(&r, i, WYE_MSG_CONSUMER, p, 2);
+    }
+    wye_recorder_stop(&r);
+    CHECK_EQ(wye_recorder_tail(&r, out, 8), 8);
+    CHECK_EQ(out[7].payload[0], WYE_ROUTINE_TAIL + 4);
+    CHECK_EQ(out[0].payload[0], WYE_ROUTINE_TAIL - 3);
+    remove("out/test-tail.hwr");
+}

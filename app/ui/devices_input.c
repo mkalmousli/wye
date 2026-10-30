@@ -52,7 +52,7 @@ static void keyboard(struct wye_ui *ui, Rectangle c)
     ui_keycap(ui, (Rectangle){c.x, c.y + 80, 70, 46}, key, true, UI_ACCENT);
     ui_text(ui, "Tap it to switch. Hold it with another key for an action", c.x + 86, c.y + 86, UI_FONT_SMALL,
             UI_TEXT);
-    ui_text(ui, "(change both under Shortcuts).", c.x + 86, c.y + 106, UI_FONT_SMALL, UI_MUTED);
+    ui_text(ui, "(change both on the Shortcuts page).", c.x + 86, c.y + 106, UI_FONT_SMALL, UI_MUTED);
     ui_text(ui, "Media keys (volume, play, brightness) reach the other computer too.", c.x, c.y + 150,
             UI_FONT_SMALL, UI_TEXT);
     ui_text(ui, "\"Type clipboard\" types text with a US keyboard layout.", c.x, c.y + 172, UI_FONT_SMALL, UI_MUTED);

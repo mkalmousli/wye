@@ -56,6 +56,12 @@ struct wye_input {
 
 void wye_input_init(struct wye_input *in, const struct wye_input_out *out);
 void wye_input_default_chords(uint8_t keys[WYE_ACT_COUNT]);
+/* Learning a shortcut's key: a key is taken unless it is the hotkey (which people hold first,
+   as the shortcut is shown as "F12 + J") or a modifier (shortcuts have none: Ctrl+J means J). */
+bool wye_shortcut_key_accepted(uint16_t key, uint16_t hotkey);
+/* Gives `action` this key and takes it from any other action, as a key can only do one thing.
+   Returns the action that lost it, or 0. */
+int wye_shortcut_assign(uint8_t *keys, int count, int action, uint8_t key);
 bool wye_input_event(struct wye_input *in, const struct wye_input_event *ev);
 void wye_input_set_mode(struct wye_input *in, enum wye_fwd_mode mode);
 

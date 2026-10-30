@@ -28,7 +28,10 @@ static const struct wye_cfg_field FIELDS[] = {
     F("drive_enabled", WYE_CFG_BOOL, drive_enabled),
     F("drive_size_mb", WYE_CFG_INT, drive_size_mb),
     F("drive_folder", WYE_CFG_TEXT, drive_folder),
-    F("start_mini", WYE_CFG_BOOL, start_mini),
+    F("last_mini", WYE_CFG_BOOL, last_mini),
+    F("mini_x", WYE_CFG_INT, mini_x),
+    F("mini_y", WYE_CFG_INT, mini_y),
+    F("routine_compress", WYE_CFG_BOOL, routine_compress),
     F("use_keyboard", WYE_CFG_BOOL, use_keyboard),
     F("use_mouse", WYE_CFG_BOOL, use_mouse),
     F("use_speaker", WYE_CFG_BOOL, use_speaker),
@@ -57,7 +60,6 @@ void wye_config_defaults(struct wye_config *c)
     c->jiggler_interval_s = 60;
     c->drive_enabled = false;
     c->drive_size_mb = 256;
-    c->start_mini = false;
     c->use_keyboard = c->use_mouse = true; /* all a new install turns on */
     c->use_speaker = c->use_mic = false;
     uint8_t keys[WYE_ACT_COUNT];

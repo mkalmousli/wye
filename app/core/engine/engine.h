@@ -17,6 +17,7 @@
 #define WYE_NOTICE_LEN 160
 
 struct wye_api_ops;
+struct wye_routine_event;
 
 /* One-shot requests the UI must service on its own thread. */
 enum wye_ui_request {
@@ -38,6 +39,7 @@ struct wye_status {
     unsigned long recorded_events;
     bool playing, play_paused, play_loop;
     int play_progress, play_speed;
+    unsigned long play_index;       /* the next event to play */
     char play_name[96];
     bool typing;
     enum wye_fw_phase fw_phase;
@@ -67,14 +69,18 @@ void wye_engine_toggle(void);
 void wye_engine_type_text(const char *text);
 void wye_engine_ctrl_alt_del(void);
 void wye_engine_jiggler(bool on);
-/* Hotkey learning: the next key press is captured (not delivered anywhere). */
-void wye_engine_learn_key(bool start);
+/* Key learning: the next key press is captured (not delivered anywhere). With for_shortcut,
+   keys that cannot be a shortcut's key are passed over (wye_shortcut_key_accepted). */
+void wye_engine_learn_key(bool start, bool for_shortcut);
 
 bool wye_engine_record(bool start, const char *name);
 bool wye_engine_play(const char *path, bool loop, char *err, size_t errlen);
 void wye_engine_play_stop(void);
 void wye_engine_play_pause(void);
-void wye_engine_play_speed(int delta_percent);
+void wye_engine_play_speed(int percent);    /* 25..1000, also while playing */
+/* Watching a recording: its newest events, oldest first; returns how many. */
+int wye_engine_recording_tail(struct wye_routine_event *out, int max);
+bool wye_engine_last_recording(char *out, size_t len);
 
 bool wye_engine_update_firmware(uint8_t role);
 /* Shared folder: look for changes on both sides right away (see drive/drive.h). */

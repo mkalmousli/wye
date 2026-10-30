@@ -32,6 +32,18 @@ static void installing(struct flash_state *s, const struct plat_bootsel *b)
     }
 }
 
+/* Automatic: the first Pico is the bridge, which stays plugged in; any Pico after that is the target. */
+static uint8_t next_role(const struct wye_ui *ui, const struct flash_state *s)
+{
+    if (s->forced_role) {
+        return s->forced_role;
+    }
+    if (s->next_role) {
+        return (uint8_t)s->next_role;
+    }
+    return s->done[WYE_ROLE_BRIDGE] || ui->st.link.bridge.present ? WYE_ROLE_TARGET : WYE_ROLE_BRIDGE;
+}
+
 static void poll(struct wye_ui *ui, struct flash_state *s)
 {
     struct plat_bootsel b;
@@ -41,17 +53,17 @@ static void poll(struct wye_ui *ui, struct flash_state *s)
     }
     if (s->phase == FLASH_INSTALLING) {
         installing(s, &b);
+    } else if (b.devices > 1) {
+        flash_enter(s, FLASH_ONE_AT_A_TIME);
     } else if (b.drives == 0 && flash_link_poll(ui, s)) {
         /* a running Pico is being updated or rescued over USB */
-    } else if (s->phase == FLASH_ASK) {
-        if (b.drives == 0) {
-            flash_enter(s, FLASH_WAITING); /* unplugged before answering */
-        }
     } else if (s->phase != FLASH_FAILED) {
         if (b.drives > 0) {
             wye_strcpy(s->drive, sizeof(s->drive), b.path[0]);
-            s->role = 0;
-            flash_enter(s, FLASH_ASK); /* never guess: the wrong firmware would be a bad surprise */
+            uint8_t role = next_role(ui, s);
+            s->forced_role = 0;
+            s->next_role = 0;
+            flash_enter(s, flash_prepare(s, role) ? FLASH_INSTALLING : FLASH_FAILED);
         } else if (b.devices > 0) {
             flash_enter(s, b.stuck ? FLASH_STUCK : FLASH_OPENING);
         } else if (s->phase != FLASH_DONE) {
@@ -62,9 +74,8 @@ static void poll(struct wye_ui *ui, struct flash_state *s)
 
 static void act(struct wye_ui *ui, struct flash_state *s, enum flash_action a)
 {
-    if ((a == FLASH_ACT_PICK_BRIDGE || a == FLASH_ACT_PICK_TARGET) && s->phase == FLASH_ASK) {
-        uint8_t role = a == FLASH_ACT_PICK_BRIDGE ? WYE_ROLE_BRIDGE : WYE_ROLE_TARGET;
-        flash_enter(s, flash_prepare(s, role) ? FLASH_INSTALLING : FLASH_FAILED);
+    if (a == FLASH_ACT_NEXT_AUTO || a == FLASH_ACT_NEXT_BRIDGE || a == FLASH_ACT_NEXT_TARGET) {
+        s->next_role = a == FLASH_ACT_NEXT_BRIDGE ? WYE_ROLE_BRIDGE : a == FLASH_ACT_NEXT_TARGET ? WYE_ROLE_TARGET : 0;
     } else if (a == FLASH_ACT_REINSTALL) {
         flash_link_reinstall(ui, s);
     } else if (a == FLASH_ACT_RETRY) {

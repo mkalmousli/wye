@@ -2,6 +2,7 @@
 #include "routine.h"
 
 #include "util/util.h"
+#include "wye_proto.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -69,6 +70,7 @@ void wye_player_tick(struct wye_player *p, uint64_t now, const struct wye_sender
         }
     }
     if (p->index >= p->count) {
+        wye_send(out, WYE_MSG_RELEASE_ALL, NULL, 0); /* an edit may have removed a key's release */
         if (p->loop) {
             wye_player_start(p, now, true);
         } else {

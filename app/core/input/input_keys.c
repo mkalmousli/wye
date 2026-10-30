@@ -18,6 +18,26 @@ void wye_input_default_chords(uint8_t keys[WYE_ACT_COUNT])
     keys[WYE_ACT_FOLDER] = HID_KEY_F;
 }
 
+bool wye_shortcut_key_accepted(uint16_t key, uint16_t hotkey)
+{
+    return key != hotkey && !HID_IS_MODIFIER(key);
+}
+
+int wye_shortcut_assign(uint8_t *keys, int count, int action, uint8_t key)
+{
+    int lost = 0;
+    for (int a = 0; key && a < count; ++a) {
+        if (a != action && keys[a] == key) {
+            keys[a] = 0;
+            lost = a;
+        }
+    }
+    if (action >= 0 && action < count) {
+        keys[action] = key;
+    }
+    return lost;
+}
+
 void wye_input_send_keyboard(struct wye_input *in)
 {
     struct wye_keyboard k;

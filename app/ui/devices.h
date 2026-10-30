@@ -41,6 +41,5 @@ int *devices_editing(void);                             /* which text box is bei
 void devices_input(struct wye_ui *ui, Rectangle r);              /* keyboard & mouse tab */
 void devices_folder(struct wye_ui *ui, Rectangle c);
 void devices_size_row(struct wye_ui *ui, Rectangle c, float y);
-void devices_shortcuts(struct wye_ui *ui, Rectangle c);
 
 #endif

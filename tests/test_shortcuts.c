@@ -49,3 +49,24 @@ TEST(shortcuts_work_locally_and_while_controlling)
     wye_input_event(&in, &m);
     CHECK(g_action != WYE_ACT_MINI);
 }
+
+TEST(learning_a_shortcut_passes_over_the_hotkey_and_modifiers)
+{
+    CHECK(!wye_shortcut_key_accepted(HID_KEY_F12, HID_KEY_F12)); /* holding it first, as "F12 + J" suggests */
+    CHECK(!wye_shortcut_key_accepted(HID_KEY_LEFT_CTRL, HID_KEY_F12));
+    CHECK(!wye_shortcut_key_accepted(HID_KEY_RIGHT_GUI, HID_KEY_F12));
+    CHECK(wye_shortcut_key_accepted(HID_KEY_J, HID_KEY_F12));
+}
+
+TEST(a_key_only_does_one_thing)
+{
+    uint8_t keys[WYE_ACT_COUNT];
+    wye_input_default_chords(keys);
+    CHECK_EQ(wye_shortcut_assign(keys, WYE_ACT_COUNT, WYE_ACT_MINI, HID_KEY_J), WYE_ACT_JIGGLER);
+    CHECK_EQ(keys[WYE_ACT_MINI], HID_KEY_J);
+    CHECK_EQ(keys[WYE_ACT_JIGGLER], 0);
+    CHECK_EQ(wye_shortcut_assign(keys, WYE_ACT_COUNT, WYE_ACT_MINI, HID_KEY_J), 0); /* the same again: nothing lost */
+    /* Choosing a new hotkey takes the key from a shortcut too. */
+    CHECK_EQ(wye_shortcut_assign(keys, WYE_ACT_COUNT, -1, HID_KEY_V), WYE_ACT_PASTE);
+    CHECK_EQ(keys[WYE_ACT_PASTE], 0);
+}

@@ -14,6 +14,7 @@ enum wye_page {
     PAGE_ROUTINES,
     PAGE_DEVICES,    /* what the other computer sees: keyboard, mouse, drive... */
     PAGE_DEVICE,
+    PAGE_SHORTCUTS,
     PAGE_SETTINGS,
     PAGE_ABOUT,
     PAGE_SETUP,      /* guided setup wizard (not in the sidebar) */
@@ -30,7 +31,6 @@ struct wye_ui {
     Font font, bold, display;      /* display: bold rasterised large for headlines and numbers */
     bool quit, hidden;
     bool mini, mini_dragging;        /* small floating panel instead of the full window */
-    bool mini_for_control;           /* went mini because control switched over: come back after */
     Vector2 mini_pos, mini_win0;     /* window position when a drag started */
     int mini_cur0[2], mini_frames;   /* screen pointer at drag start; frames since entering */
     double mini_last_click;
@@ -42,7 +42,6 @@ struct wye_ui {
     bool routine_name_edit, routine_rename;
     int setup_step;
     int devices_tab;                 /* which tab of the Devices page is open */
-    bool capturing_hotkey;
 };
 
 int wye_ui_run(struct wye_ui *ui);

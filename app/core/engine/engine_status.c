@@ -8,7 +8,9 @@
 static bool outdated(const struct wye_node_info *n, uint8_t role)
 {
     const struct wye_fw_image *img = wye_fw_embedded(role);
-    return n->present && img && wye_fw_is_older(img, n->hello.fw_major, n->hello.fw_minor, n->hello.fw_patch);
+    /* Without the profile messages it predates this app, whatever number it reports. */
+    return n->present && img && (wye_fw_is_older(img, n->hello.fw_major, n->hello.fw_minor, n->hello.fw_patch) ||
+                                 !(n->hello.caps & WYE_CAP_PROFILE));
 }
 
 void wye_engine_status(struct wye_status *s)
@@ -27,6 +29,7 @@ void wye_engine_status(struct wye_status *s)
     s->play_paused = e->player.paused;
     s->play_loop = e->player.loop;
     s->play_progress = wye_player_progress(&e->player, now);
+    s->play_index = (unsigned long)e->player.index;
     s->play_speed = e->player.speed_percent ? e->player.speed_percent : 100;
     wye_strcpy(s->play_name, sizeof(s->play_name), e->player.name);
     s->typing = wye_typing_busy(&e->typing);

@@ -21,7 +21,8 @@ bool wye_engine_sink(void *ctx, const struct wye_input_event *ev)
     struct wye_engine *e = ctx;
     plat_mutex_lock(e->lock);
     if (e->learning_key && ev->type == WYE_EV_KEY) {
-        if (ev->down && !ev->repeat) {
+        bool wanted = !e->learning_shortcut || wye_shortcut_key_accepted(ev->code, e->input.hotkey);
+        if (ev->down && !ev->repeat && wanted) {
             e->learned_key = ev->code;
             e->learning_key = false;
         }

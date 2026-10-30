@@ -82,7 +82,9 @@ static void keep_functions(struct wye_engine *e, uint64_t now)
 void wye_engine_tick(struct wye_engine *e, uint64_t now)
 {
     e->jiggler.paused = e->player.active;
+    e->jiggling = true;
     wye_jiggler_tick(&e->jiggler, now, &e->sender);
+    e->jiggling = false;
     wye_typing_tick(&e->typing, now, &e->sender);
     wye_player_tick(&e->player, now, &e->sender);
     wye_fw_session_tick(&e->fw, &e->link, now);

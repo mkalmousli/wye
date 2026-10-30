@@ -65,10 +65,11 @@ void wye_engine_jiggler(bool on)
     LOCKED(wye_jiggler_set(&g_engine.jiggler, on, plat_now_ms()));
 }
 
-void wye_engine_learn_key(bool start)
+void wye_engine_learn_key(bool start, bool for_shortcut)
 {
     LOCKED({
         g_engine.learning_key = start;
+        g_engine.learning_shortcut = for_shortcut;
         g_engine.learned_key = 0;
     });
 }

@@ -30,7 +30,7 @@ static bool welcome(struct wye_ui *ui, Rectangle c)
         "through a cable - no network, no software on the other computer.",
         "",
         "You need: two Raspberry Pi Pico boards, three jumper wires and two USB cables.",
-        "This wizard installs the firmware on both Picos and checks the connection.",
+        "Wye sets up both boards and checks the connection.",
     };
     lines(ui, c, text, 5);
     return true;
@@ -54,14 +54,36 @@ static bool permission(struct wye_ui *ui, Rectangle c)
 
 void page_setup(struct wye_ui *ui, Rectangle a)
 {
+    static int last_step;
+    static bool firmware_was_done;
+    static double advance_at;   /* long enough to see that the last Pico finished */
     int step = ui->setup_step < 0 ? 0 : (ui->setup_step >= STEP_COUNT ? STEP_COUNT - 1 : ui->setup_step);
+    if (step == STEP_PERMISSION && plat_input_permission() != PLAT_PERM_NEEDED) {
+        step = last_step > STEP_PERMISSION ? STEP_WELCOME : STEP_FIRMWARE; /* nothing to ask */
+        ui->setup_step = step;
+    }
+    if (step == STEP_FIRMWARE && last_step != STEP_FIRMWARE) {
+        firmware_was_done = true; /* coming back to a finished step must not bounce straight on */
+        advance_at = 0;
+    }
+    last_step = step;
     ui_text_bold(ui, TextFormat("Setup - step %d of %d", step + 1, STEP_COUNT), a.x, a.y, UI_FONT_TITLE, UI_TEXT);
     Rectangle c = ui_card(ui, (Rectangle){a.x, a.y + 44, a.width, a.height - 110}, TITLES[step]);
     bool can_next = false;
     switch (step) {
     case STEP_WELCOME: can_next = welcome(ui, c); break;
     case STEP_PERMISSION: can_next = permission(ui, c); break;
-    case STEP_FIRMWARE: can_next = setup_flash_step(ui, c); break;
+    case STEP_FIRMWARE:
+        can_next = setup_flash_step(ui, c);
+        if (can_next && !firmware_was_done) {
+            advance_at = GetTime() + 2.0;
+        }
+        firmware_was_done = can_next;
+        if (advance_at > 0 && GetTime() > advance_at) {
+            advance_at = 0;
+            ui->setup_step = STEP_WIRING;
+        }
+        break;
     case STEP_WIRING: setup_wiring_step(ui, c); can_next = true; break;
     default: can_next = setup_test_step(ui, c); break;
     }
@@ -71,7 +93,7 @@ void page_setup(struct wye_ui *ui, Rectangle a)
         ui->page = step == 0 ? PAGE_HOME : PAGE_SETUP;
     }
     if (step == STEP_FIRMWARE) {
-        if (ui_button((Rectangle){a.x + a.width - 300, y, 160, UI_ROW}, "Skip (already done)")) {
+        if (ui_button((Rectangle){a.x + a.width - 300, y, 160, UI_ROW}, "Skip")) {
             ui->setup_step = step + 1;
         }
     }

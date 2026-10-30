@@ -26,13 +26,13 @@ bool flash_already_installed(struct wye_ui *ui, uint8_t role)
     return (l->target.present && !ui->st.target_outdated) || plat_usb_count(WYE_BRIDGE_VID, WYE_TARGET_PID) > 0;
 }
 
-/* The user said which Pico this is: get its firmware ready to copy. */
+/* We know which Pico this is: get its firmware ready to copy. */
 bool flash_prepare(struct flash_state *s, uint8_t role)
 {
     s->role = role;
     s->write_pending = wye_fw_embedded(role) != NULL;
     if (!s->write_pending) {
-        snprintf(s->error, sizeof(s->error), "This build has no %s firmware (run ./bld firmware, then ./bld).",
+        snprintf(s->error, sizeof(s->error), "This build has no %s firmware (run ./build.c firmware, then ./build.c).",
                  role == WYE_ROLE_TARGET ? "target" : "bridge");
     }
     return s->write_pending;

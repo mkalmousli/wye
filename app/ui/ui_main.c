@@ -14,7 +14,7 @@ void ui_handle_requests(struct wye_ui *ui);
 void ui_handle_close(struct wye_ui *ui);
 
 static void (*const PAGES[PAGE_COUNT])(struct wye_ui *, Rectangle) = {
-    page_home, page_routines, page_devices, page_device, page_settings,
+    page_home, page_routines, page_devices, page_device, page_shortcuts, page_settings,
     page_about, page_setup, page_identity,
 };
 
@@ -27,6 +27,9 @@ static void frame(struct wye_ui *ui)
         ui->quit = true;
     }
     ui_handle_requests(ui);
+    if (ui->page != PAGE_SHORTCUTS) {
+        shortcuts_stop_learning();
+    }
     ui_mini_follow_control(ui);
     BeginDrawing();
     ui_background();
@@ -58,8 +61,9 @@ int wye_ui_run(struct wye_ui *ui)
     SetWindowMinSize(860, 580);
     SetExitKey(KEY_NULL);
     ui_theme_load(ui);
-    if (ui->cfg.start_mini && ui->page != PAGE_SETUP) {
-        ui_mini_enter(ui); /* the full window opens only when asked for */
+    ui_mini_restore_position(ui);
+    if (ui->cfg.last_mini && ui->page != PAGE_SETUP) {
+        ui_mini_enter(ui); /* as it was when Wye last ran */
     }
     while (!ui->quit) {
         SetTargetFPS(ui->hidden || IsWindowMinimized() ? 10 : 60);

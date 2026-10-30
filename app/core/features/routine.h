@@ -24,11 +24,14 @@ struct wye_routine_event {
     uint8_t payload[16];
 };
 
+#define WYE_ROUTINE_TAIL 128   /* newest events kept for watching a recording live */
+
 struct wye_recorder {
     FILE *file;
     uint64_t start;
     unsigned long events;
-    char path[PLAT_PATH_MAX];
+    char path[PLAT_PATH_MAX];  /* stays set after stopping: the last recording */
+    struct wye_routine_event tail[WYE_ROUTINE_TAIL];
 };
 
 struct wye_player {
@@ -66,5 +69,40 @@ int wye_player_progress(const struct wye_player *p, uint64_t now);
 
 /* Parses one line; false for comments/invalid lines. */
 bool wye_routine_parse_line(const char *line, struct wye_routine_event *ev);
+/* The newest recorded events, oldest first; returns how many were copied. */
+int wye_recorder_tail(const struct wye_recorder *r, struct wye_routine_event *out, int max);
+
+/* A routine opened for editing (routine_doc.c). Times are absolute and never go backwards. */
+struct wye_routine_doc {
+    struct wye_routine_event *ev;
+    size_t count, cap;
+};
+
+struct wye_routine_compress {
+    bool merge_moves;       /* join mouse moves closer together than merge_ms into one */
+    uint32_t merge_ms;
+    bool cap_pauses;        /* no wait longer than max_pause_ms, nothing before the first event */
+    uint32_t max_pause_ms;
+};
+
+#define WYE_ROUTINE_MERGE_MS 30u
+#define WYE_ROUTINE_MAX_PAUSE_MS 1000u
+
+bool wye_routine_doc_load(struct wye_routine_doc *d, const char *path, char *err, size_t errlen);
+bool wye_routine_doc_save(const struct wye_routine_doc *d, const char *path);
+void wye_routine_doc_free(struct wye_routine_doc *d);
+/* Removes from..to (inclusive); what followed moves up so no empty wait is left. */
+void wye_routine_doc_delete(struct wye_routine_doc *d, size_t from, size_t to);
+/* Inserts a copy of from..to right after it. */
+bool wye_routine_doc_duplicate(struct wye_routine_doc *d, size_t from, size_t to);
+/* Swaps event i with the next or previous one (dir -1 or 1); their times stay in place. */
+bool wye_routine_doc_move(struct wye_routine_doc *d, size_t i, int dir);
+uint32_t wye_routine_doc_delay(const struct wye_routine_doc *d, size_t i);  /* the wait before event i */
+void wye_routine_doc_set_delay(struct wye_routine_doc *d, size_t i, uint32_t ms);
+void wye_routine_doc_speed(struct wye_routine_doc *d, int percent);         /* 200: twice as fast, for good */
+/* Removes what does nothing (repeated key states, empty mouse reports), and optionally more;
+   key presses and button changes are never dropped. Returns events removed. */
+size_t wye_routine_doc_compress(struct wye_routine_doc *d, const struct wye_routine_compress *o);
+bool wye_routine_is_move(const struct wye_routine_event *ev);   /* mouse motion and nothing else */
 
 #endif

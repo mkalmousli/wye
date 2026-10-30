@@ -35,7 +35,9 @@ static void finished(struct wye_ui *ui, struct flash_state *s)
         flash_enter(s, FLASH_DONE);
         ui_confetti_burst((Vector2){(float)GetScreenWidth() / 2, (float)GetScreenHeight() / 3});
     } else {
-        snprintf(s->error, sizeof(s->error), "%s", st->fw_error[0] ? st->fw_error : "The update did not finish.");
+        /* Firmware from before this app may refuse the update: the button always works. */
+        s->link_failed[s->role] = true;
+        snprintf(s->error, sizeof(s->error), "This Pico needs a fresh install: hold BOOTSEL and plug it into this computer.");
         flash_enter(s, FLASH_FAILED);
     }
 }
@@ -46,8 +48,18 @@ static bool start_next(struct wye_ui *ui, struct flash_state *s)
     static const uint8_t ORDER[] = {WYE_ROLE_TARGET, WYE_ROLE_BRIDGE};
     for (int i = 0; i < 2; ++i) {
         uint8_t r = ORDER[i];
-        bool wanted = s->queued[r] || outdated(&ui->st, r);
-        if (wanted && reachable(&ui->st, r) && wye_engine_update_firmware(r)) {
+        bool wanted = (s->queued[r] || outdated(&ui->st, r)) && !s->link_failed[r] && reachable(&ui->st, r);
+        const struct wye_node_info *n = r == WYE_ROLE_BRIDGE ? &ui->st.link.bridge : &ui->st.link.target;
+        if (wanted && r == WYE_ROLE_BRIDGE && !(n->hello.caps & WYE_CAP_PROFILE) && !s->bootsel_tried) {
+            /* Too old to trust with an update, but it can restart itself into install mode. */
+            s->bootsel_tried = true;
+            if (wye_engine_reboot_node(WYE_NODE_BRIDGE, WYE_REBOOT_BOOTSEL)) {
+                s->forced_role = WYE_ROLE_BRIDGE;
+                flash_enter(s, FLASH_RESCUE);
+                return true;
+            }
+        }
+        if (wanted && wye_engine_update_firmware(r)) {
             s->queued[r] = false;
             s->role = r;
             flash_enter(s, FLASH_UPDATING);
@@ -78,6 +90,9 @@ bool flash_link_poll(struct wye_ui *ui, struct flash_state *s)
     }
     if (s->phase == FLASH_RESCUE && GetTime() - s->since < RESCUE_WAIT_S) {
         return true;
+    }
+    if (s->phase == FLASH_RESCUE) {
+        s->forced_role = 0; /* it never came back: the next Pico could be any */
     }
     bool showing_done = s->phase == FLASH_DONE && GetTime() - s->since < DONE_SHOW_S;
     return s->phase != FLASH_FAILED && !showing_done && start_next(ui, s);

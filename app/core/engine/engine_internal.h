@@ -37,7 +37,8 @@ struct wye_engine {
     uint64_t next_functions_check;
     bool auto_fw_tried[3];         /* per node id, once per connection */
     uint64_t next_capture_retry;
-    bool learning_key;
+    bool learning_key, learning_shortcut;
+    bool jiggling;                 /* its moves are not the user's: routines leave them out */
     int learned_key;
     bool identity_valid[3];
     struct wye_identity identity[3];

@@ -1,4 +1,4 @@
-/* Setup: the install screen - stepper, checklist, animated scene, words. */
+/* Setup: the install screen - checklist, animated scene, words. */
 #include "setup_flash.h"
 #include "ui_theme.h"
 #include <math.h>
@@ -11,40 +11,6 @@ static float ease(float t)
 {
     t = t < 0 ? 0 : (t > 1 ? 1 : t);
     return t * t * (3 - 2 * t);
-}
-
-/* Which of the three stages is active (3 = this Pico is finished). */
-static int stage(const struct flash_state *s)
-{
-    switch (s->phase) {
-    case FLASH_WAITING: case FLASH_OPENING: case FLASH_STUCK: case FLASH_RESCUE: return 0;
-    case FLASH_ASK: return 1;
-    case FLASH_DONE: case FLASH_ALL_SET: return 3;
-    default: return 2;
-    }
-}
-
-static void stepper(struct wye_ui *ui, Rectangle r, int active)
-{
-    static const char *const NAMES[] = {"Plug in with BOOTSEL", "Which Pico?", "Install"};
-    float w = r.width / 3;
-    for (int i = 0; i < 3; ++i) {
-        Vector2 c = {r.x + w * (float)i + 16, r.y + 16};
-        float label_end = c.x + 24 + ui_measure(NAMES[i], UI_FONT, true).x + 12;
-        if (i < 2 && label_end < c.x + w - 24) {
-            DrawLineEx((Vector2){label_end, c.y}, (Vector2){c.x + w - 24, c.y}, 2, i < active ? UI_OK : UI_CARD_EDGE);
-        }
-        if (i < active) {
-            art_check(c, 14, UI_OK);
-        } else {
-            Color col = i == active ? UI_ACCENT : UI_CARD_EDGE;
-            float pulse = i == active ? 4.0f * (0.5f + 0.5f * sinf((float)GetTime() * 5)) : 0;
-            DrawCircleV(c, 14 + pulse, Fade(col, 0.25f));
-            DrawCircleV(c, 14, col);
-            ui_text_bold(ui, TextFormat("%d", i + 1), c.x - 4, c.y - 10, UI_FONT, RAYWHITE);
-        }
-        ui_text_bold(ui, NAMES[i], c.x + 24, c.y - 10, UI_FONT, i <= active ? UI_TEXT : UI_MUTED);
-    }
 }
 
 /* "Bridge / Target" pills: what is finished across both Picos. */
@@ -84,15 +50,21 @@ static struct art_scene scene_for(const struct flash_state *s, float age)
 enum flash_action flash_view(struct wye_ui *ui, const struct flash_state *s, Rectangle c)
 {
     float age = (float)(GetTime() - s->since), words_h = 108;
-    stepper(ui, (Rectangle){c.x, c.y, c.width, 36}, stage(s));
-    Rectangle scene = {c.x, c.y + 52, c.width - 140, c.height - 52 - words_h};
+    Rectangle scene = {c.x, c.y, c.width - 140, c.height - words_h};
     struct art_scene sc = scene_for(s, age);
     art_scene(ui, scene, &sc);
     checklist(ui, s, (Vector2){c.x + c.width - 128, scene.y + 8});
+    enum flash_action action = FLASH_ACT_NONE;
+    /* The first Pico becomes the bridge. Only a Pico done over again needs this. */
+    ui_text(ui, "Next Pico", c.x + c.width - 128, scene.y + 86, UI_FONT_SMALL, UI_MUTED);
+    int next = ui_segmented((Rectangle){c.x + c.width - 128, scene.y + 108, 128, 28}, "Auto;B;T", s->next_role);
+    if (next != s->next_role) {
+        action = next == WYE_ROLE_BRIDGE ? FLASH_ACT_NEXT_BRIDGE : next == WYE_ROLE_TARGET ? FLASH_ACT_NEXT_TARGET
+                                                                                           : FLASH_ACT_NEXT_AUTO;
+    }
     if (s->phase == FLASH_OPENING || s->phase == FLASH_RESCUE) {
         art_spinner((Vector2){scene.x + scene.width * 0.75f, scene.y + scene.height / 2}, 26, UI_ACCENT);
     }
-    enum flash_action action = FLASH_ACT_NONE;
     flash_words(ui, s, (Rectangle){c.x, c.y + c.height - words_h, c.width, words_h}, &action);
     ui_confetti_draw();
     return action;
