@@ -1,0 +1,40 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping make Wye better!
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Wye version
+      description: Shown on the About page.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: this-os
+    attributes:
+      label: Your computer's OS
+      placeholder: Windows 11 / Ubuntu 24.04 / ...
+    validations:
+      required: true
+  - type: input
+    id: other-os
+    attributes:
+      label: The other computer (target)
+      placeholder: macOS 15 / BIOS screen / iPad / ...
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: About → Open log folder. Attach or paste the last lines of the log.
+      render: text

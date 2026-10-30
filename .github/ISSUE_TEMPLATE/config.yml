@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & FAQ
+    url: https://mkalmousli.github.io/wye/#faq
+    about: Setup, hardware and how Wye works.

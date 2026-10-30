@@ -1,0 +1,14 @@
+wye_firmware(wye_target
+    main.c
+    usb_desc.c
+    hid_desc.c
+    hid_out.c
+    msc.c
+    msc_scsi.c
+    hid_report_cb.c
+    ${WYE_ROOT}/devcore/target.c
+    ${WYE_ROOT}/devcore/target_input.c
+    ${WYE_ROOT}/devcore/target_queue_kbd.c
+    ${WYE_ROOT}/devcore/target_queue_ptr.c
+    ${WYE_ROOT}/devcore/target_disk.c
+    ${WYE_ROOT}/devcore/target_disk_io.c)

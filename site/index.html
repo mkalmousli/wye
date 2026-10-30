@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wye – Free, Open-Source Keyboard &amp; Mouse Sharing for Two Computers</title>
+<meta name="description" content="Press F12 and your keyboard, mouse and speakers switch to your other computer, over two tiny boards and three wires. No network, nothing to install on the other side, works in BIOS. Free and open source under the GPL.">
+<link rel="canonical" href="https://mkalmousli.github.io/wye/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0a0f17">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wye">
+<meta property="og:title" content="Wye – one keyboard, two computers, one key to switch">
+<meta property="og:description" content="Your keyboard, mouse and speakers switch to the other computer at the press of F12. Free software. No network, no install over there, works in BIOS.">
+<meta property="og:url" content="https://mkalmousli.github.io/wye/">
+<meta property="og:image" content="https://mkalmousli.github.io/wye/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mkalmousli.github.io/wye/assets/og.png">
+<link rel="preload" as="image" href="assets/poster.webp" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="importmap">{"imports": {"three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.170.0/three.module.min.js"}}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Wye",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Windows 10, Windows 11, Linux",
+  "description": "Free and open-source: use one keyboard and mouse on two computers over a three-wire cable through two Raspberry Pi Pico boards. No network and no software on the second computer.",
+  "url": "https://mkalmousli.github.io/wye/",
+  "downloadUrl": "https://github.com/mkalmousli/wye/releases/latest",
+  "image": "https://mkalmousli.github.io/wye/assets/og.png",
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html"
+}
+</script>
+<style>
+:root{--bg:#f7f5ef;--bg2:#efebe1;--card:#fff;--ink:#0d1420;--sub:#4b5565;--line:#e3ddcf;--accent:#4f8cff;--accent2:#7aa7ff;--night:#0a0f17;--ok:#12a150;--bad:#d4553b;--r:20px;--shadow:0 1px 2px rgba(13,20,32,.06),0 10px 30px rgba(13,20,32,.07)}
+@media (prefers-color-scheme:dark){:root{--bg:#0d131c;--bg2:#111925;--card:#151e2b;--ink:#e9edf3;--sub:#9eabbb;--line:#243042;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.3)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}img{max-width:100%;height:auto}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}.narrow{max-width:800px}
+h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.025em;line-height:1.05;margin:0 0 .45em}
+h1{font-size:clamp(2.6rem,6vw,4.9rem)}h2{font-size:clamp(2rem,4vw,3.1rem)}h3{font-size:1.2rem;letter-spacing:-.01em}
+p{margin:0 0 1em}
+kbd{font:700 .85em "Space Grotesk",sans-serif;padding:.1em .45em;border-radius:6px;background:linear-gradient(#fff,#e8e3d7);color:#0d1420;border:1px solid #cfc7b5;box-shadow:0 2px 0 #b9b09b}
+.eyebrow{font:700 .78rem/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.lead{font-size:1.15rem;color:var(--sub);max-width:40em}
+.g{background:linear-gradient(90deg,#4f8cff,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 24px;border-radius:14px;font:600 1rem Inter,sans-serif;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-2px)}.btn.sm{padding:9px 16px;font-size:.92rem}.btn.big{padding:18px 30px;font-size:1.08rem}
+.btn.primary{background:linear-gradient(90deg,#4f8cff,#7c5cff);color:#fff;border-color:#4f6fe0;box-shadow:0 8px 24px rgba(79,140,255,.35)}
+.btn.ghost{background:rgba(255,255,255,.06);color:#e9edf3;border-color:rgba(255,255,255,.18);box-shadow:none}
+header{position:fixed;inset:0 0 auto;z-index:30;backdrop-filter:blur(14px) saturate(1.4);background:rgba(10,15,23,.55);border-bottom:1px solid rgba(255,255,255,.07);color:#e9edf3}
+.nav{display:flex;align-items:center;gap:28px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;font:700 1.2rem "Space Grotesk",sans-serif;text-decoration:none}
+.nav ul{display:flex;gap:26px;list-style:none;margin:0 0 0 auto;padding:0}.nav ul a{text-decoration:none;opacity:.75;font-weight:500;font-size:.95rem}.nav ul a:hover{opacity:1}
+/* the 3D story */
+#story{height:440vh;background:radial-gradient(120% 90% at 70% 40%,#1b2a3f 0,#0a0f17 60%);color:#e9edf3;position:relative}
+#stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.poster,#scene{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#scene{opacity:0;transition:opacity .8s}#scene.ready{opacity:1}
+#scene.ready~.poster,.poster:has(~#scene.ready){opacity:0}
+.poster{transition:opacity .8s}
+#stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(10,15,23,.92) 0,rgba(10,15,23,.78) 36%,rgba(10,15,23,0) 58%)}
+.captions{z-index:2;position:absolute;left:max(20px,calc((100vw - 1160px)/2 + 20px));top:0;bottom:0;width:min(530px,42vw);display:grid;align-items:center;pointer-events:none}
+.cap{grid-area:1/1;opacity:0;transform:translateY(24px);transition:opacity .5s,transform .5s;pointer-events:none}
+.cap.on{opacity:1;transform:none;pointer-events:auto}
+.cap h1{font-size:clamp(2.6rem,4.6vw,3.9rem)}
+.cap .sub{font-size:1.15rem;color:#b8c3d2;max-width:30em}
+.cap .eyebrow{color:var(--accent2)}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0 12px}.ctas.center{justify-content:center}
+.micro{font-size:.88rem;color:#8f9cb0}
+.labels,.progress,.scrollhint{z-index:3}.labels{position:absolute;inset:0;pointer-events:none}
+.labels span{position:absolute;left:0;top:0;white-space:nowrap;font:600 .82rem Inter,sans-serif;padding:6px 11px;border-radius:999px;background:rgba(10,15,23,.72);border:1px solid rgba(122,167,255,.55);color:#dbe6ff;opacity:0;transition:opacity .35s;margin:-34px 0 0 -40px;pointer-events:none;backdrop-filter:blur(6px)}
+.labels span.on{opacity:1}
+.progress{position:absolute;right:24px;top:50%;display:grid;gap:10px;transform:translateY(-50%)}
+.progress i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);transition:background .3s,transform .3s}
+.progress i.on{background:var(--accent2);transform:scale(1.4)}
+.scrollhint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-size:.85rem;color:#8f9cb0;opacity:0;transition:opacity .4s;margin:0}
+.scrollhint.on{opacity:1;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translate(-50%,6px)}}
+/* without 3D: poster on top, captions as plain text */
+.no3d #stage::after{display:none}.no3d #story{height:auto}.no3d #stage{position:relative;height:auto;padding:90px 0 40px}
+.no3d .poster{position:relative;height:auto;opacity:1}.no3d .captions{position:static;width:auto;padding:0 20px;display:block}
+.no3d .cap{opacity:1;transform:none;margin:40px auto;max-width:640px}.no3d .labels,.no3d .progress,.no3d .scrollhint,.no3d #switchKey{display:none}
+/* sections */
+section:not(#story){padding:100px 0}
+.alt{background:var(--bg2)}
+.stats{padding:46px 0!important;background:var(--night);color:#e9edf3;border-top:1px solid #1d2838}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.grid4 b{display:block;font:700 clamp(2rem,4vw,2.8rem) "Space Grotesk",sans-serif;color:var(--accent2);letter-spacing:-.03em}
+.grid4 span{color:#9eabbb;font-size:.95rem}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
+.tiles article,.vs article{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--shadow)}
+.tiles .ic{font-size:1.8rem;display:block;margin-bottom:10px}.tiles p{color:var(--sub);margin:0}
+.vs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px;align-items:stretch}
+.vs ul{list-style:none;padding:0;margin:14px 0 0}.vs li{padding:6px 0;color:var(--sub)}
+.vs .x li::before{content:"✕";color:var(--bad);font-weight:700;margin-right:10px}
+.vs .y li::before{content:"✓";color:var(--ok);font-weight:700;margin-right:10px}
+.vs .win{border:2px solid var(--accent);transform:translateY(-8px)}
+.trial{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center}
+.dl{display:grid;gap:12px}.dl .micro{color:var(--sub);text-align:center}
+details{border-bottom:1px solid var(--line);padding:18px 0}
+summary{cursor:pointer;font:600 1.1rem Inter,sans-serif;list-style:none;display:flex;justify-content:space-between;gap:20px}
+summary::-webkit-details-marker{display:none}summary::after{content:"+";color:var(--accent);font-size:1.5rem;line-height:1}details[open] summary::after{content:"−"}
+details p{color:var(--sub);margin:10px 0 0}
+.final{text-align:center;background:radial-gradient(90% 120% at 50% 0,#1b2a3f,#0a0f17 70%);color:#e9edf3}
+footer{border-top:1px solid var(--line);padding:34px 0;color:var(--sub);font-size:.92rem}
+footer .row{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}footer nav{display:flex;flex-wrap:wrap;gap:18px}
+@media (max-width:900px){
+  .nav ul{display:none}.nav .btn{margin-left:auto}
+  #stage::after{display:none}
+  .captions{left:0;right:0;width:auto;top:auto;bottom:0;padding:0 20px 64px;align-items:end;background:linear-gradient(transparent,rgba(10,15,23,.92) 38%)}
+  .cap .sub{font-size:1rem}.cap h1{font-size:2.4rem}.cap h2{font-size:1.8rem}
+  .progress{right:12px;top:90px;transform:none;grid-auto-flow:column}
+  .grid4,.tiles,.vs,.trial{grid-template-columns:1fr 1fr}.vs .win{transform:none}
+  section:not(#story){padding:70px 0}
+}
+@media (max-width:620px){.grid4,.tiles,.vs,.trial{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+  <nav class="wrap nav" aria-label="Main">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="30" height="30">Wye</a>
+    <ul>
+      <li><a href="#uses">Who it's for</a></li>
+      <li><a href="#compare">Compare</a></li>
+      <li><a href="#free">Free software</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://github.com/mkalmousli/wye">GitHub</a></li>
+    </ul>
+    <a class="btn sm primary" href="#download">Download</a>
+  </nav>
+</header>
+
+<main>
+<section id="story" aria-label="How Wye works">
+  <div id="stage">
+    <img class="poster" src="assets/poster.webp" width="1600" height="900" alt="A desk with a laptop and a second computer, joined by two small boards and a glowing three-wire cable" fetchpriority="high">
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <div class="labels" aria-hidden="true">
+      <span data-label="mine" data-ch="0">Your computer</span>
+      <span data-label="other" data-ch="0">The other computer</span>
+      <span data-label="bridge" data-ch="1">Pico 1</span>
+      <span data-label="target" data-ch="1">Pico 2</span>
+      <span data-label="wires" data-ch="1">3 wires</span>
+      <span data-label="other" data-ch="2">Sees a normal keyboard</span>
+      <span data-label="mine" data-ch="3">🔊 Its sound, here</span>
+      <span data-label="other" data-ch="3">🎙 Your mic, there</span>
+    </div>
+    <div class="captions">
+      <div class="cap hero on" data-ch-caption="0">
+        <p class="eyebrow">A KVM switch without the switch</p>
+        <h1>One keyboard.<br>Two computers.<br><span class="g">One key to switch.</span></h1>
+        <p class="sub">Press <kbd>F12</kbd> and your keyboard, mouse and speakers jump to the other computer. Press it again, they're back. No network, no setup on the other side.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#download">Download</a>
+          <button class="btn ghost" id="switchKey" type="button"><kbd>F12</kbd> Try the switch</button>
+        </div>
+        <p class="micro">Windows &amp; Linux · free software (GPL) · no account</p>
+      </div>
+      <div class="cap" data-ch-caption="1">
+        <p class="eyebrow">The whole trick</p>
+        <h2>Two tiny boards and three wires.</h2>
+        <p class="sub">One tiny Raspberry Pi Pico plugs into each computer. Wye sets them up for you: no soldering, no terminal, no drivers.</p>
+      </div>
+      <div class="cap" data-ch-caption="2">
+        <p class="eyebrow">Nothing to install over there</p>
+        <h2>The other computer just sees a keyboard.</h2>
+        <p class="sub">So it works where software can't: locked-down work laptops, offline machines, and before the OS even starts: BIOS, boot menus, disk passwords.</p>
+      </div>
+      <div class="cap" data-ch-caption="3">
+        <p class="eyebrow">Your whole desk comes along</p>
+        <h2>Hear it. Talk to it. Share files.</h2>
+        <p class="sub">Its sound plays on your speakers, your mic joins its calls, and a shared folder syncs both ways. One set of everything.</p>
+        <div class="ctas"><a class="btn primary" href="#download">Download</a></div>
+      </div>
+    </div>
+    <div class="progress" aria-hidden="true"><i data-ch-caption="0" class="on"></i><i data-ch-caption="1"></i><i data-ch-caption="2"></i><i data-ch-caption="3"></i></div>
+    <p class="scrollhint" data-ch-caption="0" aria-hidden="true">Scroll to see how ↓</p>
+  </div>
+</section>
+
+<section class="stats" aria-label="Key numbers">
+  <div class="wrap grid4">
+    <div><b>~2 ms</b><span>added delay. You won't feel it.</span></div>
+    <div><b>0</b><span>apps to install on the other computer</span></div>
+    <div><b>10 min</b><span>from unboxing to switching</span></div>
+    <div><b>GPL</b><span>open source for good. No key, no account.</span></div>
+  </div>
+</section>
+
+<section id="uses">
+  <div class="wrap">
+    <p class="eyebrow">Who it's for</p>
+    <h2>If you have two computers on one desk, it's for you.</h2>
+    <div class="tiles">
+      <article><span class="ic">💼</span><h3>Work laptop + home PC</h3><p>Use your good keyboard on the company laptop. No install, no admin rights needed.</p></article>
+      <article><span class="ic">🖥</span><h3>Servers &amp; homelab</h3><p>BIOS, boot menus and disk passwords, from your chair.</p></article>
+      <article><span class="ic">🎮</span><h3>Gaming + streaming</h3><p>One keyboard and one headset for both PCs.</p></article>
+      <article><span class="ic">🔒</span><h3>Offline machines</h3><p>No network between them, ever. Only keystrokes cross.</p></article>
+      <article><span class="ic">🧪</span><h3>Testing &amp; kiosks</h3><p>Record a routine once, replay it on any device.</p></article>
+      <article><span class="ic">📱</span><h3>Tablets &amp; TVs</h3><p>iPad, Android, Chromebook: if it takes a USB keyboard, it works.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="alt">
+  <div class="wrap">
+    <p class="eyebrow">Compare</p>
+    <h2>No box on your desk. Works where apps can't.</h2>
+    <div class="vs">
+      <article><h3>KVM switch</h3><ul class="x"><li>Usually switches your monitor too</li><li>A box and cables on your desk</li><li>No shared folder, no macros</li></ul></article>
+      <article><h3>Sharing apps</h3><ul class="x"><li>Need an install on both computers</li><li>Need a network between them</li><li>Blocked on most work laptops, dead in BIOS</li></ul></article>
+      <article class="win"><h3>Wye</h3><ul class="y"><li>Open source, under the GPL</li><li>Both screens stay on</li><li>Nothing to install over there, no network</li><li>Works in BIOS, with sound and a shared folder</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<section id="free">
+  <div class="wrap">
+    <p class="eyebrow">Free software</p>
+    <h2>Yours to use, read, change and share.</h2>
+    <p class="lead">Wye is licensed under the GNU GPL, version 3 or later. The app, the firmware and this website live in one public repository.</p>
+    <div class="tiles">
+      <article><span class="ic">🔓</span><h3>No keys, no limits</h3><p>Every feature, for everyone, for any use. There are no license keys, editions or accounts.</p></article>
+      <article><span class="ic">🔍</span><h3>Nothing hidden</h3><p>No analytics and no telemetry. Read the code, or build the app and firmware yourself with one command.</p></article>
+      <article><span class="ic">🤝</span><h3>Built in the open</h3><p>Report bugs, suggest ideas and send pull requests on GitHub.</p></article>
+    </div>
+    <div class="ctas"><a class="btn" href="https://github.com/mkalmousli/wye">View the source on GitHub</a></div>
+  </div>
+</section>
+
+<section id="download" class="alt">
+  <div class="wrap trial">
+    <div>
+      <p class="eyebrow">Get started</p>
+      <h2>Download it, or build it yourself.</h2>
+      <p class="lead">All you need is two Raspberry Pi Picos, three jumper wires and two USB cables. The app sets up both boards and shows you which wire goes where.</p>
+    </div>
+    <div class="dl">
+      <a class="btn primary big" href="https://github.com/mkalmousli/wye/releases/latest/download/Wye-windows-x64.exe">Download for Windows</a>
+      <a class="btn big" href="https://github.com/mkalmousli/wye/releases/latest/download/wye-linux-x64">Download for Linux</a>
+      <p class="micro">Windows 10/11 · Linux 64-bit · macOS coming soon<br>Signed automatic updates · <a href="https://github.com/mkalmousli/wye/releases">all releases</a> · <a href="https://github.com/mkalmousli/wye#build">build from source</a></p>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap narrow">
+    <p class="eyebrow">FAQ</p>
+    <h2>Good questions.</h2>
+    <details><summary>What do I need?</summary><p>Two Raspberry Pi Pico boards, three jumper wires and two USB cables. The app installs everything onto the boards and shows you which wires go where.</p></details>
+    <details><summary>Do I install anything on the other computer?</summary><p>No. It sees a standard USB keyboard, mouse, sound card and drive. Windows, macOS, Linux, ChromeOS, tablets, even BIOS screens.</p></details>
+    <details><summary>Will I notice lag?</summary><p>No. Wye adds about 2 milliseconds; a single frame on a 60 Hz screen takes 16.</p></details>
+    <details><summary>Does it need Wi-Fi or a network?</summary><p>No. Everything crosses the wire between the two boards. The app only goes online to check for updates, and you can turn that off.</p></details>
+    <details><summary>Is it open source?</summary><p>Yes. Wye is free software under the GNU GPL, version 3 or later. You can use it for anything, with no license key or account.</p></details>
+    <details><summary>Can I build it myself?</summary><p>Yes. Clone the repository and run <code>./build.c</code>. Everything, firmware included, is built from the source in one repository.</p></details>
+    </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Give your second computer your best keyboard.</h2>
+    <div class="ctas center"><a class="btn primary big" href="#download">Download</a><a class="btn ghost big" href="https://github.com/mkalmousli/wye">Source code</a></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap row">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" width="26" height="26">Wye</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/mkalmousli/wye">Source code</a>
+      <a href="https://github.com/mkalmousli/wye/releases">Releases</a>
+      <a href="https://github.com/mkalmousli/wye/issues">Issues</a>
+      <a href="https://github.com/mkalmousli/wye/blob/main/LICENSE">License (GPL-3.0-or-later)</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+    <span>Free software by the Wye contributors · Raspberry Pi is a trademark of Raspberry Pi Ltd.</span>
+  </div>
+</footer>
+
+<script>
+// Load the 3D story once the page is up; without WebGL or modules the poster stays.
+const no3d = () => document.documentElement.classList.add("no3d");
+addEventListener("load", () => {
+  const go = () => import("./assets/scene/main.js").catch(no3d);
+  "requestIdleCallback" in window ? requestIdleCallback(go, { timeout: 1500 }) : setTimeout(go, 300);
+});
+</script>
+</body>
+</html>

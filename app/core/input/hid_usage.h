@@ -1,0 +1,57 @@
+/* USB HID usages used by the app (keyboard page 0x07, consumer page 0x0C). */
+#ifndef WYE_HID_USAGE_H
+#define WYE_HID_USAGE_H
+
+enum {
+    HID_KEY_A = 0x04,
+    HID_KEY_C = 0x06,
+    HID_KEY_F = 0x09,
+    HID_KEY_J = 0x0d,
+    HID_KEY_M = 0x10,
+    HID_KEY_O = 0x12,
+    HID_KEY_V = 0x19,
+    HID_KEY_1 = 0x1e,
+    HID_KEY_0 = 0x27,
+    HID_KEY_ENTER = 0x28,
+    HID_KEY_ESCAPE = 0x29,
+    HID_KEY_BACKSPACE = 0x2a,
+    HID_KEY_TAB = 0x2b,
+    HID_KEY_SPACE = 0x2c,
+    HID_KEY_CAPS_LOCK = 0x39,
+    HID_KEY_F1 = 0x3a,
+    HID_KEY_F12 = 0x45,
+    HID_KEY_SCROLL_LOCK = 0x47,
+    HID_KEY_PAUSE = 0x48,
+    HID_KEY_INSERT = 0x49,
+    HID_KEY_DELETE = 0x4c,
+    HID_KEY_NUM_LOCK = 0x53,
+    HID_KEY_F13 = 0x68,
+    HID_KEY_F24 = 0x73,
+    HID_KEY_LEFT_CTRL = 0xe0,
+    HID_KEY_LEFT_SHIFT = 0xe1,
+    HID_KEY_LEFT_ALT = 0xe2,
+    HID_KEY_LEFT_GUI = 0xe3,
+    HID_KEY_RIGHT_CTRL = 0xe4,
+    HID_KEY_RIGHT_SHIFT = 0xe5,
+    HID_KEY_RIGHT_ALT = 0xe6,
+    HID_KEY_RIGHT_GUI = 0xe7,
+};
+
+#define HID_IS_MODIFIER(u) ((u) >= HID_KEY_LEFT_CTRL && (u) <= HID_KEY_RIGHT_GUI)
+#define HID_MODIFIER_BIT(u) (1u << ((u) - HID_KEY_LEFT_CTRL))
+
+enum {
+    HID_CONSUMER_PLAY_PAUSE = 0x00cd,
+    HID_CONSUMER_MUTE = 0x00e2,
+    HID_CONSUMER_VOLUME_UP = 0x00e9,
+    HID_CONSUMER_VOLUME_DOWN = 0x00ea,
+    HID_CONSUMER_NEXT = 0x00b5,
+    HID_CONSUMER_PREVIOUS = 0x00b6,
+    HID_CONSUMER_STOP = 0x00b7,
+    HID_CONSUMER_BRIGHTNESS_UP = 0x006f,
+    HID_CONSUMER_BRIGHTNESS_DOWN = 0x0070,
+};
+
+enum { HID_SYSTEM_POWER = 1, HID_SYSTEM_SLEEP = 2, HID_SYSTEM_WAKE = 3 };
+
+#endif

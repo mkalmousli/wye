@@ -1,0 +1,27 @@
+#include <windows.h>
+
+1 ICON "wye.ico"
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "wye.manifest"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION WYE_RC_VERSION
+PRODUCTVERSION WYE_RC_VERSION
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Wye contributors"
+            VALUE "FileDescription", "Wye"
+            VALUE "ProductName", "Wye"
+            VALUE "OriginalFilename", "Wye.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Wye contributors. GPL-3.0-or-later."
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Wye</title>
+  <defs>
+    <clipPath id="left"><rect width="128" height="256"/></clipPath>
+    <clipPath id="right"><rect x="128" width="128" height="256"/></clipPath>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="#0d1320"/>
+  <g fill="none" stroke-width="28" stroke-linecap="round">
+    <path d="M128 132V200" stroke="#ecf0f8"/>
+    <path d="M128 132 66 70" stroke="#4f8cff" clip-path="url(#left)"/>
+    <path d="M128 132 190 70" stroke="#a855f7" clip-path="url(#right)"/>
+  </g>
+  <circle cx="66" cy="70" r="24" fill="#4f8cff"/>
+  <circle cx="190" cy="70" r="24" fill="#a855f7"/>
+  <circle cx="128" cy="200" r="24" fill="#ecf0f8"/>
+</svg>

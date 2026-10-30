@@ -1,0 +1,21 @@
+# Build output (the build tool itself lives in out/.tool)
+out/
+*.o
+*.uf2
+*.elf
+*.bin
+/build.exe
+/build.exe.*
+
+# Private signing keys: NEVER commit. Back them up offline.
+keys/*.key
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+
+# Website tooling
+node_modules/

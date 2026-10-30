@@ -1,0 +1,75 @@
+# Tag v1.2.3 -> build firmware, Linux and Windows, sign latest.json and
+# publish everything as a GitHub release of this repository.
+#
+# Repository secret:
+#   RELEASE_SIGNING_KEY  contents of keys/release.key
+name: release
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  firmware:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y cmake ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+      - run: git clone --depth 1 --branch 2.1.1 --recurse-submodules --shallow-submodules https://github.com/raspberrypi/pico-sdk.git "$RUNNER_TEMP/pico-sdk"
+      - run: ./build.c firmware --pico-sdk="$RUNNER_TEMP/pico-sdk"
+      - uses: actions/upload-artifact@v4
+        with: { name: firmware, path: out/firmware/*.uf2 }
+
+  apps:
+    needs: firmware
+    runs-on: ubuntu-22.04 # oldest glibc we support
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: firmware, path: out/firmware }
+      - run: sudo apt-get update && sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev libgl-dev mingw-w64
+      - run: ./build.c all --werror
+      - run: ./build.c --target=windows --werror
+      - run: |
+          mkdir dist
+          cp out/linux/wye dist/wye-linux-x64
+          cp out/windows/Wye.exe dist/Wye-windows-x64.exe
+          cp out/firmware/*.uf2 dist/
+      - uses: actions/upload-artifact@v4
+        with: { name: dist, path: dist/* }
+
+  publish:
+    needs: apps
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: dist, path: dist }
+      - name: Write and sign latest.json
+        env:
+          KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          tag = os.environ["TAG"]; base = f"https://github.com/{os.environ['REPO']}/releases/download/{tag}/"
+          def asset(name):
+              data = open(f"dist/{name}", "rb").read()
+              return {"url": base + name, "sha512": hashlib.sha512(data).hexdigest(), "size": len(data)}
+          notes = os.popen(f"git tag -l --format='%(contents:subject)' {tag}").read().strip()
+          manifest = {"version": tag.lstrip("v"), "notes": notes,
+                      "assets": {"linux-x64": asset("wye-linux-x64"),
+                                 "windows-x64": asset("Wye-windows-x64.exe")}}
+          json.dump(manifest, open("dist/latest.json", "w"), indent=2)
+          PY
+          umask 077 && printf '%s\n' "$KEY" > "$RUNNER_TEMP/release.key"
+          chmod +x dist/wye-linux-x64
+          dist/wye-linux-x64 --release-sign "$RUNNER_TEMP/release.key" dist/latest.json
+          rm -f "$RUNNER_TEMP/release.key"
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" dist/* -R "$GITHUB_REPOSITORY" --title "Wye ${TAG#v}" --notes "Download for your system below. Flash nothing by hand - the app sets up both Picos."
