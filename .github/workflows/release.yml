@@ -1,5 +1,6 @@
-# Tag v1.2.3 -> build firmware, Linux and Windows, sign latest.json and
-# publish everything as a GitHub release of this repository.
+# Tag v1.2.3 -> build the firmware once, then every app target in parallel
+# (one runner per OS and CPU), sign latest.json and publish a GitHub release
+# with a guide, checksums and download counts.
 #
 # Repository secret:
 #   RELEASE_SIGNING_KEY  contents of keys/release.key
@@ -7,6 +8,9 @@ name: release
 on:
   push:
     tags: ["v*"]
+
+permissions:
+  contents: read
 
 jobs:
   firmware:
@@ -19,52 +23,51 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: firmware, path: out/firmware/*.uf2 }
 
-  apps:
+  app:
     needs: firmware
-    runs-on: ubuntu-22.04 # oldest glibc we support
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { id: linux-x64, runner: ubuntu-22.04, file: wye-linux-x64, build: "./build.c all --werror", built: out/linux/wye }
+          - { id: linux-arm64, runner: ubuntu-22.04-arm, file: wye-linux-arm64, build: "./build.c all --werror", built: out/linux/wye }
+          - { id: windows-x64, runner: ubuntu-22.04, file: Wye-windows-x64.exe, build: "./build.c --target=windows --werror", built: out/windows/Wye.exe }
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with: { name: firmware, path: out/firmware }
       - run: sudo apt-get update && sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev libgl-dev mingw-w64
-      - run: ./build.c all --werror
-      - run: ./build.c --target=windows --werror
-      - run: |
-          mkdir dist
-          cp out/linux/wye dist/wye-linux-x64
-          cp out/windows/Wye.exe dist/Wye-windows-x64.exe
-          cp out/firmware/*.uf2 dist/
+      - run: ${{ matrix.build }}
+      - name: Stage the asset
+        run: |
+          mkdir dist && cp "${{ matrix.built }}" "dist/${{ matrix.file }}"
       - uses: actions/upload-artifact@v4
-        with: { name: dist, path: dist/* }
+        with: { name: "app-${{ matrix.id }}", path: "dist/${{ matrix.file }}" }
 
   publish:
-    needs: apps
+    needs: app
     runs-on: ubuntu-22.04
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 } # full history for the changelog
       - uses: actions/download-artifact@v4
-        with: { name: dist, path: dist }
-      - name: Write and sign latest.json
+        with: { pattern: "app-*", path: dist, merge-multiple: true }
+      - uses: actions/download-artifact@v4
+        with: { name: firmware, path: dist }
+      - name: Write the manifest and the release notes
         env:
-          KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
+        run: python3 tools/release/manifest.py
+      - name: Sign the manifest
+        env:
+          KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: |
-          python3 - <<'PY'
-          import hashlib, json, os
-          tag = os.environ["TAG"]; base = f"https://github.com/{os.environ['REPO']}/releases/download/{tag}/"
-          def asset(name):
-              data = open(f"dist/{name}", "rb").read()
-              return {"url": base + name, "sha512": hashlib.sha512(data).hexdigest(), "size": len(data)}
-          notes = os.popen(f"git tag -l --format='%(contents:subject)' {tag}").read().strip()
-          manifest = {"version": tag.lstrip("v"), "notes": notes,
-                      "assets": {"linux-x64": asset("wye-linux-x64"),
-                                 "windows-x64": asset("Wye-windows-x64.exe")}}
-          json.dump(manifest, open("dist/latest.json", "w"), indent=2)
-          PY
-          umask 077 && printf '%s\n' "$KEY" > "$RUNNER_TEMP/release.key"
+          umask 077
+          printf '%s\n' "$KEY" > "$RUNNER_TEMP/release.key"
           chmod +x dist/wye-linux-x64
           dist/wye-linux-x64 --release-sign "$RUNNER_TEMP/release.key" dist/latest.json
           rm -f "$RUNNER_TEMP/release.key"
@@ -72,4 +75,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" dist/* -R "$GITHUB_REPOSITORY" --title "Wye ${TAG#v}" --notes "Download for your system below. Flash nothing by hand - the app sets up both Picos."
+        run: |
+          gh release create "$TAG" dist/* -R "$GITHUB_REPOSITORY" \
+            --title "Wye ${TAG#v}" --notes-file "$RUNNER_TEMP/RELEASE_NOTES.md" --latest

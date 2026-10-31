@@ -1,6 +1,17 @@
 <p align="center"><img src="docs/banner.png" alt="Wye: one keyboard, two computers, three wires" width="100%"></p>
 
 <p align="center">
+  <a href="https://github.com/mkalmousli/wye/releases/latest"><img alt="latest release" src="https://img.shields.io/github/v/release/mkalmousli/wye?label=release&color=7c3aed"></a>
+  <a href="https://github.com/mkalmousli/wye/releases"><img alt="total downloads" src="https://img.shields.io/github/downloads/mkalmousli/wye/total?label=downloads&color=0ea5e9"></a>
+  <a href="https://github.com/mkalmousli/wye/releases/latest"><img alt="downloads of the latest release" src="https://img.shields.io/github/downloads/mkalmousli/wye/latest/total?label=latest%20downloads&color=22c55e"></a>
+  <a href="https://github.com/mkalmousli/wye/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/mkalmousli/wye?style=social"></a>
+  <a href="https://github.com/mkalmousli/wye/forks"><img alt="forks" src="https://img.shields.io/github/forks/mkalmousli/wye?style=social"></a>
+  <a href="https://github.com/mkalmousli/wye/actions/workflows/ci.yml"><img alt="build status" src="https://img.shields.io/github/actions/workflow/status/mkalmousli/wye/ci.yml?branch=main&label=build"></a>
+  <a href="https://github.com/mkalmousli/wye/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/mkalmousli/wye?color=f59e0b"></a>
+  <a href="LICENSE"><img alt="license" src="https://img.shields.io/github/license/mkalmousli/wye?color=64748b"></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/mkalmousli/wye/releases/latest"><b>Download</b></a> ·
   <a href="https://mkalmousli.github.io/wye/"><b>Website</b></a> ·
   <a href="https://mkalmousli.github.io/wye/#faq"><b>FAQ</b></a> ·
@@ -41,7 +52,7 @@ You need two Raspberry Pi Picos, three jumper wires and two USB cables.
 
 1. Install the app on the computer you sit at:
 
-   **Linux or macOS:**
+   **Linux** (x64 and arm64):
 
    ```sh
    curl -fsSL https://raw.githubusercontent.com/mkalmousli/wye/main/install.sh | sh
@@ -53,9 +64,9 @@ You need two Raspberry Pi Picos, three jumper wires and two USB cables.
    irm https://raw.githubusercontent.com/mkalmousli/wye/main/install.ps1 | iex
    ```
 
-   Neither needs root or administrator rights. On Linux x64 and Windows they
-   download the latest release and check its checksum. Where there's no release
-   yet, `install.sh` builds from source, and tells you which tools it needs.
+   Neither needs root or administrator rights. They pick the right file for
+   your system, show the download progress, check its SHA-512 and install it.
+   macOS is not supported yet.
 
 2. Connect pins **1→2, 2→1, 3→3** between the two Picos (TX, RX, ground):
 
@@ -121,9 +132,13 @@ git clone --depth 1 --branch 2.1.1 --recurse-submodules --shallow-submodules htt
 
 ## Releases
 
-Push a `v*` tag; `.github/workflows/release.yml` builds every platform, signs
-`latest.json` with the release key and publishes a GitHub release, which the
-in-app updater reads.
+Push a `v*` tag. `.github/workflows/release.yml` builds the firmware once, then
+builds each app target in parallel on its own runner: Linux x64, Linux arm64
+and Windows x64. It signs `latest.json` with the release key and publishes a
+GitHub release with a download table (size and SHA-512 for every file), the
+install commands and the changes since the previous tag. The in-app updater
+reads `latest.json`. Download counts are on the release page and in the badges
+at the top of this README.
 
 The workflow needs a `RELEASE_SIGNING_KEY` repository secret holding the
 contents of the private key that matches `keys/release.pub`. To publish your

@@ -1,14 +1,25 @@
-# Builds and tests every push and pull request.
+# Builds and tests every push and pull request, one job per platform and CPU.
 name: ci
 on:
   push:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  tests:
-    runs-on: ubuntu-24.04
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x64, runner: ubuntu-24.04, cmd: "./build.c all --werror" }
+          - { name: linux-arm64, runner: ubuntu-24.04-arm, cmd: "./build.c all --werror" }
+          - { name: windows-x64 (cross), runner: ubuntu-24.04, cmd: "./build.c --target=windows --werror" }
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev libgl-dev
-      - run: ./build.c tests --werror
+      - run: sudo apt-get update && sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev libgl-dev mingw-w64
+      - run: ${{ matrix.cmd }}
