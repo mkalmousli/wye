@@ -32,12 +32,15 @@ jobs:
           - { id: linux-x64, runner: ubuntu-22.04, file: wye-linux-x64, build: "./build.c all --werror", built: out/linux/wye }
           - { id: linux-arm64, runner: ubuntu-22.04-arm, file: wye-linux-arm64, build: "./build.c all --werror", built: out/linux/wye }
           - { id: windows-x64, runner: ubuntu-22.04, file: Wye-windows-x64.exe, build: "./build.c --target=windows --werror", built: out/windows/Wye.exe }
+          - { id: macos-arm64, runner: macos-14, file: wye-macos-arm64, build: "./build.c all --werror", built: out/macos/Wye }
+          - { id: macos-x64, runner: macos-15-intel, file: wye-macos-x64, build: "./build.c all --werror", built: out/macos/Wye }
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with: { name: firmware, path: out/firmware }
-      - run: sudo apt-get update && sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev libgl-dev mingw-w64
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev libgl-dev mingw-w64
       - run: ${{ matrix.build }}
       - name: Stage the asset
         run: |

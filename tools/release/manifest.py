@@ -21,6 +21,8 @@ PLATFORMS = {
     "linux-x64": "wye-linux-x64",
     "linux-arm64": "wye-linux-arm64",
     "windows-x64": "Wye-windows-x64.exe",
+    "macos-arm64": "wye-macos-arm64",
+    "macos-x64": "wye-macos-x64",
 }
 
 

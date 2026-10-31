@@ -41,3 +41,16 @@ jobs:
             mingw-w64-x86_64-make
             make
       - run: ./build.c tests --werror
+
+  build-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: macos-arm64, runner: macos-14 }
+          - { name: macos-x64, runner: macos-15-intel }
+    name: ${{ matrix.name }} (build and tests)
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./build.c all --werror

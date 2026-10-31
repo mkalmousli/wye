@@ -9,6 +9,9 @@ void core_flags(strlist *f)
              "-Ithird_party/monocypher", (char *)NULL);
     miniaudio_flags(f);
     sl_push(f, B.os == OS_WINDOWS ? "-Iapp/platform/win32" : "-Iapp/platform/posix");
+    if (B.os == OS_MACOS) {
+        sl_push(f, "-fobjc-arc"); /* the macOS platform layer is Objective-C */
+    }
     sl_pushf(f, "-DWYE_VERSION_MAJOR=%d", B.major);
     sl_pushf(f, "-DWYE_VERSION_MINOR=%d", B.minor);
     sl_pushf(f, "-DWYE_VERSION_PATCH=%d", B.patch);
@@ -26,7 +29,12 @@ static void platform_sources(strlist *s)
         fs_glob("app/platform/win32", ".c", false, s);
     } else {
         fs_glob("app/platform/posix", ".c", false, s);
-        fs_glob(B.os == OS_MACOS ? "app/platform/macos" : "app/platform/linux", ".c", false, s);
+        if (B.os == OS_MACOS) {
+            fs_glob("app/platform/macos", ".c", false, s);
+            fs_glob("app/platform/macos", ".m", false, s);
+        } else {
+            fs_glob("app/platform/linux", ".c", false, s);
+        }
     }
 }
 

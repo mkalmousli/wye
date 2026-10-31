@@ -66,7 +66,8 @@ You need two Raspberry Pi Picos, three jumper wires and two USB cables.
 
    Neither needs root or administrator rights. They pick the right file for
    your system, show the download progress, check its SHA-512 and install it.
-   macOS is not supported yet.
+   macOS (Apple silicon and Intel) needs Accessibility and Input Monitoring
+   permission for Wye under Privacy & Security, granted on first start.
 
 2. Connect pins **1→2, 2→1, 3→3** between the two Picos (TX, RX, ground):
 

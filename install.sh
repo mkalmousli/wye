@@ -37,14 +37,14 @@ main() {
     case $os-$arch in
     Linux-x86_64 | Linux-amd64) key=linux-x64 ;;
     Linux-aarch64 | Linux-arm64) key=linux-arm64 ;;
+    Darwin-arm64) key=macos-arm64 ;;
+    Darwin-x86_64) key=macos-x64 ;;
     *) key= ;;
     esac
 
     banner
     if [ -n "$key" ] && from_release "$key"; then
         :
-    elif [ "$os" = Darwin ]; then
-        die "Wye does not run on macOS yet. Linux and Windows are supported."
     else
         warn "no release for $os $arch yet, so building from source"
         from_source
@@ -134,6 +134,7 @@ from_release() { # key
     mv -f "$bin.new" "$bin" # also works while the old version runs
     ok "app installed"
 
+    if [ "$os" != Darwin ]; then
     say "adding the icon and the app menu entry"
     fetch "$raw/app/resources/icons/wye.svg" "$svg"
     fetch "$raw/app/resources/linux/wye.png" "$png"
@@ -153,6 +154,7 @@ StartupNotify=true
 EOF
     command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$(dirname "$desktop")" 2>/dev/null || true
     ok "app menu entry added"
+    fi
 }
 
 need_tools() {
