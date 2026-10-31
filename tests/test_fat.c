@@ -33,7 +33,7 @@ static bool same(const char *a, const char *b)
 
 TEST(fat_pack_unpack_round_trip)
 {
-    static const char *const files[] = {"short.txt", "A long file name with spaces.txt", "Gr\xc3\xbc\xc3\x9f" "e.md",
+    static const char *const files[] = {"short.txt", "A long file name with spaces.txt", "Gr\xc3\xbc\303\237e.md",
                                         "docs/inner/deep.bin", "docs/empty", "noext"};
     static const size_t sizes[] = {12, 5000, 3, 70000, 0, 1};
     char err[200] = "";
