@@ -15,6 +15,16 @@ void ui_show_window(struct wye_ui *ui)
     SetWindowFocused();
 }
 
+/* Hides the window; the program keeps running and the tray brings it back. */
+void ui_hide_window(struct wye_ui *ui)
+{
+    if (ui->mini) {
+        ui_mini_leave(ui);
+    }
+    SetWindowState(FLAG_WINDOW_HIDDEN);
+    ui->hidden = true;
+}
+
 void ui_handle_requests(struct wye_ui *ui)
 {
     unsigned req = wye_engine_take_ui_requests();
@@ -43,7 +53,9 @@ void ui_handle_requests(struct wye_ui *ui)
 
 void ui_handle_close(struct wye_ui *ui)
 {
-    if (WindowShouldClose() || plat_instance_quit_requested()) {
-        ui->quit = true; /* closing the window ends the program, not just the window */
+    if (plat_instance_quit_requested()) {
+        ui->quit = true;
+    } else if (WindowShouldClose()) {
+        ui_hide_window(ui); /* closing the window keeps Wye running in the tray; Quit ends it */
     }
 }

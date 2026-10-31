@@ -54,6 +54,7 @@ void ui_draw_toasts(struct wye_ui *ui);
 void ui_save_config(struct wye_ui *ui);
 void ui_open_shared_folder(struct wye_ui *ui);
 void ui_show_window(struct wye_ui *ui);     /* the full window, in front, wherever it was */
+void ui_hide_window(struct wye_ui *ui);     /* out of sight; Wye keeps running, the tray brings it back */
 /* The system tray and the window title (ui_tray.c). */
 void ui_tray_tick(struct wye_ui *ui);
 void ui_tray_stop(void);
