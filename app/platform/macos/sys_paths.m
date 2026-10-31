@@ -28,13 +28,6 @@ bool plat_data_dir(char *out, size_t len)
     return plat_config_dir(out, len);
 }
 
-bool plat_temp_dir(char *out, size_t len)
-{
-    NSString *tmp = [NSTemporaryDirectory() stringByAppendingPathComponent:@"Wye"];
-    return plat_mkdirs(tmp.fileSystemRepresentation) &&
-           snprintf(out, len, "%s", tmp.fileSystemRepresentation) < (int)len;
-}
-
 bool plat_exe_path(char *out, size_t len)
 {
     char raw[PLAT_PATH_MAX], real[PLAT_PATH_MAX];
