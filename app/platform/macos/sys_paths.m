@@ -16,8 +16,18 @@ static bool make_dir_under(NSString *base, char *out, size_t len)
     return snprintf(out, len, "%s", dir.fileSystemRepresentation) < (int)len;
 }
 
+/* Tests and power users point these at another folder (same names as on Windows). */
+static bool override_dir(const char *env, char *out, size_t len)
+{
+    const char *v = getenv(env);
+    return v && *v && plat_mkdirs(v) && snprintf(out, len, "%s", v) < (int)len;
+}
+
 bool plat_config_dir(char *out, size_t len)
 {
+    if (override_dir("WYE_CONFIG_HOME", out, len)) {
+        return true;
+    }
     NSArray *dirs = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
     return dirs.count && make_dir_under(dirs[0], out, len);
 }
@@ -25,7 +35,7 @@ bool plat_config_dir(char *out, size_t len)
 /* One folder for settings and the shared drive image. */
 bool plat_data_dir(char *out, size_t len)
 {
-    return plat_config_dir(out, len);
+    return override_dir("WYE_DATA_HOME", out, len) || plat_config_dir(out, len);
 }
 
 bool plat_exe_path(char *out, size_t len)

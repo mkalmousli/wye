@@ -20,7 +20,7 @@ bool test_use_data_dir(const char *rel)
         strcpy(abs, p);
     }
     free(p);
-    return ok && setenv("XDG_DATA_HOME", abs, 1) == 0;
+    return ok && setenv("XDG_DATA_HOME", abs, 1) == 0 && setenv("WYE_DATA_HOME", abs, 1) == 0;
 #endif
 }
 
