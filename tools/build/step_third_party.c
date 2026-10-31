@@ -28,6 +28,10 @@ void base_flags(strlist *f, bool warnings)
 void raylib_public_flags(strlist *f)
 {
     sl_pushn(f, "-I" RL, "-Ithird_party/raygui", "-DPLATFORM_DESKTOP", "-DGRAPHICS_API_OPENGL_33", (char *)NULL);
+    /* Vendored raygui.h sets a variable it never reads (clang on macOS reports it under --werror). */
+    if (B.os == OS_MACOS) {
+        sl_push(f, "-Wno-unused-but-set-variable");
+    }
 }
 
 static bool monocypher(strlist *objs)
