@@ -88,7 +88,7 @@ bool mac_translate(CGEventType type, CGEventRef e, struct wye_input_event *ev)
     switch (type) {
     case kCGEventKeyDown: case kCGEventKeyUp: case kCGEventFlagsChanged:
         return key_event(type, e, ev);
-    case NX_SYSDEFINED:
+    case WYE_NX_SYSDEFINED:
         return aux_event(e, ev);
     default:
         return mouse_event(type, e, ev);

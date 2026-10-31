@@ -3,11 +3,12 @@
 #define WYE_MACOS_CAPTURE_INTERNAL_H
 
 #include "plat_input.h"
+#include "wye_proto.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <stdint.h>
 
-#define NX_SYSDEFINED ((CGEventType)14) /* media keys: NSSystemDefined */
+#define WYE_NX_SYSDEFINED ((CGEventType)14) /* media keys: NSSystemDefined */
 
 struct mac_capture {
     wye_input_sink sink;

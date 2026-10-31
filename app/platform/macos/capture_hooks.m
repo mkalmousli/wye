@@ -24,7 +24,7 @@ CGEventMask mac_event_mask(void)
         kCGEventKeyDown, kCGEventKeyUp, kCGEventFlagsChanged, kCGEventLeftMouseDown,
         kCGEventLeftMouseUp, kCGEventRightMouseDown, kCGEventRightMouseUp, kCGEventOtherMouseDown,
         kCGEventOtherMouseUp, kCGEventMouseMoved, kCGEventLeftMouseDragged,
-        kCGEventRightMouseDragged, kCGEventOtherMouseDragged, kCGEventScrollWheel, NX_SYSDEFINED,
+        kCGEventRightMouseDragged, kCGEventOtherMouseDragged, kCGEventScrollWheel, WYE_NX_SYSDEFINED,
     };
     CGEventMask m = 0;
     for (size_t i = 0; i < sizeof(kinds) / sizeof(kinds[0]); i++) {
