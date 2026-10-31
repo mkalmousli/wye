@@ -1,5 +1,7 @@
 /* Shared folder end to end: host drive <-> bridge relay <-> target USB drive, both ways. */
 #include "drive/fat.h"
+#include <stdio.h>
+#include <string.h>
 #include "drive/fat_tree.h"
 #include "drive_harness.h"
 #include "plat_thread.h"
@@ -47,7 +49,18 @@ TEST(drive_folder_syncs_both_ways)
     wye_write_file_atomic(ROOT "/folder/hello.txt", "hello", 5);
     sim_init(&g_sim);
     wye_drive_init(&g_drive, true, ROOT "/folder", 16);
-    if (!strstr(g_drive.image, ROOT "/data")) {
+    char image[1024]; /* Windows paths use backslashes: compare with '/' */
+    size_t n = 0;
+    for (; n + 1 < sizeof(image) && g_drive.image[n]; ++n) {
+        image[n] = g_drive.image[n];
+    }
+    image[n] = 0;
+    for (char *c = image; *c; ++c) {
+        if (*c == '\\') {
+            *c = '/';
+        }
+    }
+    if (!strstr(image, ROOT "/data")) {
         CHECK(!"drive image would land outside the test folder");
         return;
     }
