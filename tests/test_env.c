@@ -12,7 +12,7 @@ bool test_use_data_dir(const char *rel)
 {
     char abs[1024];
 #if defined(_WIN32)
-    return _fullpath(abs, rel, sizeof(abs)) && _putenv_s("LOCALAPPDATA", abs) == 0;
+    return _fullpath(abs, rel, sizeof(abs)) && _putenv_s("WYE_DATA_HOME", abs) == 0;
 #else
     char *p = realpath(rel, NULL); /* XDG paths only count when absolute */
     bool ok = p && strlen(p) < sizeof(abs);
@@ -29,6 +29,7 @@ void test_isolate_home(void)
 {
 #if defined(_WIN32)
     _putenv_s("USERPROFILE", "out\\test-home");
+    _putenv_s("WYE_CONFIG_HOME", "out\\test-config");
 #else
     mkdir("out", 0755);
     mkdir("out/test-home", 0755);

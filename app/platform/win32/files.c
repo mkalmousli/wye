@@ -1,3 +1,4 @@
+#include <stdlib.h>
 /*
  * Files and folders on Windows. The app manifest selects the UTF-8 code
  * page, so the ANSI ("A") APIs and fopen() take UTF-8 paths directly.
@@ -48,8 +49,26 @@ static bool known_folder(int csidl, char *out, size_t len)
     return n > 0 && (size_t)n < len && plat_mkdirs(out);
 }
 
-bool plat_config_dir(char *out, size_t len) { return known_folder(CSIDL_APPDATA, out, len); }
-bool plat_data_dir(char *out, size_t len) { return known_folder(CSIDL_LOCAL_APPDATA, out, len); }
+/* WYE_CONFIG_HOME / WYE_DATA_HOME override the folders (like XDG on Linux); tests use them. */
+static bool override_dir(const char *env, char *out, size_t len)
+{
+    const char *base = getenv(env);
+    if (!base || !*base) {
+        return false;
+    }
+    int n = snprintf(out, len, "%s\\Wye", base);
+    return n > 0 && (size_t)n < len && plat_mkdirs(out);
+}
+
+bool plat_config_dir(char *out, size_t len)
+{
+    return override_dir("WYE_CONFIG_HOME", out, len) || known_folder(CSIDL_APPDATA, out, len);
+}
+
+bool plat_data_dir(char *out, size_t len)
+{
+    return override_dir("WYE_DATA_HOME", out, len) || known_folder(CSIDL_LOCAL_APPDATA, out, len);
+}
 
 bool plat_temp_dir(char *out, size_t len)
 {
