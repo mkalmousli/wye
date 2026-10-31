@@ -2,6 +2,7 @@
 #ifndef WYE_MACOS_IOKIT_H
 #define WYE_MACOS_IOKIT_H
 
+#include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #include <stdbool.h>
 #include <stddef.h>
