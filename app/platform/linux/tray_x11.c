@@ -224,6 +224,7 @@ static void dock(Window owner)
     ev.xclient.data.l[1] = OPCODE_REQUEST_DOCK;
     ev.xclient.data.l[2] = (long)g.icon;
     XSendEvent(g.dpy, owner, False, NoEventMask, &ev);
+    XMapRaised(g.dpy, g.icon); /* XEmbed: the panel only shows a docked icon once it is mapped */
     XFlush(g.dpy);
     g.docked = true;
 }
