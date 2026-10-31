@@ -31,7 +31,7 @@ static void checklist(struct wye_ui *ui, const struct flash_state *s, Vector2 at
 
 static struct art_scene scene_for(const struct flash_state *s, float age)
 {
-    struct art_scene sc = {.role = s->role, .plug = 1.0f, .led = BLANK};
+    struct art_scene sc = {.role = s->role, .plug = 1.0f, .led = BLANK, .check = 0.0f};
     float u = fmodf(age, LOOP_S);
     switch (s->phase) {
     case FLASH_WAITING:
